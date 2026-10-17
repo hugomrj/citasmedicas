@@ -1,0 +1,10 @@
+require_relative 'models'
+
+require_relative 'services/paciente_service'
+require_relative 'services/disponibilidad_service'
+require_relative 'services/cita_service'
+require_relative 'services/medico_service'
+require_relative 'services/bloqueo_service'
+require_relative 'services/usuario_service'
+require_relative 'services/configuracion_service'
+require_relative 'services/aviso_service'

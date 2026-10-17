@@ -1,0 +1,21 @@
+<div class="page-head">
+  <div>
+    <h1>Mi perfil</h1>
+    <p>Información de tu cuenta.</p>
+  </div>
+</div>
+
+<div class="dash-card glass">
+  <div class="field" style="margin-bottom:1rem">
+    <label>Nombre</label>
+    <p><b><%= usuario_actual.nombre_completo %></b></p>
+  </div>
+  <div class="field" style="margin-bottom:1rem">
+    <label>Email</label>
+    <p><%= usuario_actual.email %></p>
+  </div>
+  <div class="field">
+    <label>Rol</label>
+    <p><%= usuario_actual.rol.capitalize %></p>
+  </div>
+</div>

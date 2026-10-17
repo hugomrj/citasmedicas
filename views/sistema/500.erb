@@ -1,0 +1,13 @@
+<div class="page-head">
+  <div>
+    <h1>500 · Error del servidor</h1>
+    <p>Algo salió mal. Revisá el log si persiste.</p>
+  </div>
+</div>
+<div class="dash-card glass">
+  <a href="/" class="btn btn-primary">Volver al inicio</a>
+  <% if @error && settings.development? %>
+    <pre style="background:#0f172a;padding:1rem;border-radius:6px;margin-top:1rem;overflow:auto;font-size:0.75rem;color:#e2e8f0"><%= @error.class %>: <%= @error.message %>
+<%= @error.backtrace.first(15).join("\n") %></pre>
+  <% end %>
+</div>
