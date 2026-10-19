@@ -1,0 +1,83 @@
+<div class="page-head">
+  <div>
+    <h1>Especialidades</h1>
+    <p>Administra las especialidades médicas disponibles en el sistema.</p>
+  </div>
+  <a href="/especialidades/nuevo" class="btn btn-primary">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <span>Nueva Especialidad</span>
+  </a>
+</div>
+
+<div class="filters glass">
+  <div class="f-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" placeholder="Buscar especialidad..." id="inpBuscar" value="<%= @query_actual %>">
+    <kbd>/</kbd>
+  </div>
+
+  <!-- BOTÓN LIMPIAR -->
+  <button class="btn btn-ghost" id="btnClear" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    Limpiar
+  </button>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <h2>Listado de Especialidades</h2>
+  </div>
+  
+  <div id="contenedorTabla">
+    <%= erb :'clinica/especialidades/_tabla', layout: false %>
+  </div>
+</div>
+
+<script>
+  const inputBuscar = document.getElementById('inpBuscar');
+  const contenedorTabla = document.getElementById('contenedorTabla');
+  const btnClear = document.getElementById('btnClear');
+  let timeoutId = null;
+
+  async function fetchTabla(page = 1) {
+    const q = inputBuscar.value.trim();
+    const url = `/especialidades?q=${encodeURIComponent(q)}&page=${page}`;
+    
+    try {
+      const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      if (!res.ok) {
+        toast('err', 'Error', 'No se pudo cargar la lista.');
+        return;
+      }
+      const html = await res.text();
+      contenedorTabla.innerHTML = html;
+    } catch(err) {
+      console.error('Error al buscar:', err);
+    }
+  }
+
+  inputBuscar.addEventListener('input', () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fetchTabla(1), 300);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
+      e.preventDefault();
+      inputBuscar.focus();
+    }
+  });
+
+  // Evento del botón Limpiar
+  btnClear.addEventListener('click', () => {
+    inputBuscar.value = '';
+    fetchTabla(1);
+  });
+
+  // Evento del paginador
+  contenedorTabla.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-page]');
+    if (!btn || btn.disabled) return;
+    fetchTabla(btn.dataset.page);
+  });
+</script>

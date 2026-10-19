@@ -14,12 +14,24 @@ CREATE TABLE usuarios (
   CONSTRAINT usuarios_rol_valido CHECK (rol IN ('admin', 'recepcion', 'medico'))
 );
 
+
+
+CREATE TABLE especialidades (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  nombre          VARCHAR(255) NOT NULL UNIQUE,
+  created_at      DATETIME NOT NULL,
+  updated_at      DATETIME NOT NULL
+);
+
+
+
+
 CREATE TABLE medicos (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
   nombre          VARCHAR(255) NOT NULL,
   apellido        VARCHAR(255) NOT NULL,
-  especialidad    VARCHAR(255) NOT NULL,
-  matricula       VARCHAR(255) NOT NULL UNIQUE,
+  especialidad_id INTEGER NOT NULL, 
+  matricula       VARCHAR(255) NOT NULL,
   email           VARCHAR(255),
   telefono        VARCHAR(255),
   usuario_id      INTEGER,
@@ -27,7 +39,8 @@ CREATE TABLE medicos (
   activo          BOOLEAN NOT NULL DEFAULT 1,
   created_at      DATETIME NOT NULL,
   updated_at      DATETIME NOT NULL,
-  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
+  FOREIGN KEY (especialidad_id) REFERENCES especialidades(id) -- <--- NUEVA FK
 );
 
 CREATE TABLE pacientes (

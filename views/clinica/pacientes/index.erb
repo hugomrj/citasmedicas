@@ -16,8 +16,8 @@
     <kbd>/</kbd>
   </div>
   
-  <!-- Botón de limpiar filtros pegado al buscador -->
-  <button class="btn btn-ghost btn-sm" id="btnClear" type="button" style="margin-left: 10px;">
+  <!-- Botón de limpiar filtros -->
+  <button class="btn btn-ghost" id="btnClear" type="button">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
     Limpiar
   </button>
@@ -27,17 +27,25 @@
   <div class="panel-head">
     <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
       <h2>Listado de Pacientes</h2>
-      
-      <!-- Pestañas con contadores -->
+            
+      <!-- Pestañas con contadores abreviados -->
       <div class="tabs" id="listTabs">
-        <button class="tab <%= @status_actual == 'todos' ? 'on' : '' %>" data-status="todos">Todos <span class="t-count" id="tcTodos"><%= @contador_todos %></span></button>
-        <button class="tab <%= @status_actual == 'activos' ? 'on' : '' %>" data-status="activos">Activos <span class="t-count" id="tcActivos"><%= @contador_activos %></span></button>
-        <button class="tab <%= @status_actual == 'inactivos' ? 'on' : '' %>" data-status="inactivos">Inactivos <span class="t-count" id="tcInactivos"><%= @contador_inactivos %></span></button>
+        <button class="tab <%= @status_actual == 'todos' ? 'on' : '' %>" data-status="todos">
+          Todos <span class="t-count" id="tcTodos"><%= numero_abreviado(@contador_todos) %></span>
+        </button>
+        <button class="tab <%= @status_actual == 'activos' ? 'on' : '' %>" data-status="activos">
+          Activos <span class="t-count" id="tcActivos"><%= numero_abreviado(@contador_activos) %></span>
+        </button>
+        <button class="tab <%= @status_actual == 'inactivos' ? 'on' : '' %>" data-status="inactivos">
+          Inactivos <span class="t-count" id="tcInactivos"><%= numero_abreviado(@contador_inactivos) %></span>
+        </button>
       </div>
+
+
     </div>
   </div>
   
-  <!-- Contenedor que se actualizará por JS -->
+  <!-- Contenedor que se actualizará por JS (incluye la tabla y el paginador) -->
   <div id="contenedorTabla">
     <%= erb :'clinica/pacientes/_tabla', layout: false %>
   </div>
@@ -52,9 +60,10 @@
   let currentStatus = '<%= @status_actual %>';
   let timeoutId = null;
 
-  async function fetchTabla() {
+  // Función principal que hace la petición AJAX (ahora acepta el número de página)
+  async function fetchTabla(page = 1) {
     const q = inputBuscar.value.trim();
-    const url = `/pacientes?q=${encodeURIComponent(q)}&status=${currentStatus}`;
+    const url = `/pacientes?q=${encodeURIComponent(q)}&status=${currentStatus}&page=${page}`;
     
     try {
       const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
@@ -65,11 +74,13 @@
     }
   }
 
+  // Evento del buscador (con debounce). Al buscar, siempre vuelve a la página 1.
   inputBuscar.addEventListener('input', () => {
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(fetchTabla, 300);
+    timeoutId = setTimeout(() => fetchTabla(1), 300);
   });
 
+  // Atajo de teclado '/' para enfocar el buscador
   document.addEventListener('keydown', (e) => {
     if(e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
       e.preventDefault();
@@ -77,15 +88,17 @@
     }
   });
 
+  // Evento de las pestañas. Al cambiar de pestaña, vuelve a la página 1.
   tabs.forEach(tab => {
     tab.addEventListener('click', (e) => {
       tabs.forEach(t => t.classList.remove('on'));
       e.target.closest('.tab').classList.add('on');
       currentStatus = e.target.closest('.tab').dataset.status;
-      fetchTabla();
+      fetchTabla(1);
     });
   });
 
+  // Evento del botón Limpiar filtros
   btnClear.addEventListener('click', () => {
     inputBuscar.value = '';
     currentStatus = 'todos';
@@ -93,6 +106,15 @@
     tabs.forEach(t => t.classList.remove('on'));
     document.querySelector('.tab[data-status="todos"]').classList.add('on');
     
-    fetchTabla();
+    fetchTabla(1);
+  });
+
+  // Escuchar clics en el paginador (los botones que están dentro del _tabla.erb)
+  contenedorTabla.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-page]');
+    if (!btn || btn.disabled) return;
+    
+    // Llamamos a fetchTabla con el número de página seleccionado
+    fetchTabla(btn.dataset.page);
   });
 </script>

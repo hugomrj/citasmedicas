@@ -1,11 +1,12 @@
 require 'sinatra/base'
 require 'sinatra/json'
+require 'sinatra/flash' 
 require 'json'
 
 require_relative 'services'
 require_relative 'helpers/auth_helpers'
-require_relative 'helpers/flash_helpers'
 require_relative 'helpers/avisos_helper'
+require_relative 'helpers/format_helpers'
 require_relative 'config/routes'
 
 module CitasMedicas
@@ -23,10 +24,12 @@ module CitasMedicas
       'citasmedicas-dev-secret-cambiar-en-produccion-0123456789abcdef0123456789abcdef'
     )
 
-    helpers AuthHelpers
-    helpers FlashHelpers
-    helpers AvisosHelper
+    register Sinatra::Flash 
 
+    helpers AuthHelpers
+    helpers AvisosHelper
+    helpers FormatHelpers
+    
     configure :development do
       set :show_exceptions, false
       set :raise_errors,    false

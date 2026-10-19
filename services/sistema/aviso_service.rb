@@ -17,7 +17,8 @@ module AvisoService
         entidad_tipo: entidad_tipo,
         entidad_id:   entidad_id,
         titulo:       titulo,
-        detalle:      detalle
+        detalle:      detalle,
+        estado:       'pendiente'
       )
     end
   end

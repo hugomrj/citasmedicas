@@ -1,0 +1,72 @@
+<div class="page-head">
+  <div>
+    <h1>Agenda Diaria</h1>
+    <p>Visualizá y gestioná los turnos del consultorio.</p>
+  </div>
+  <a href="/agenda/nueva" class="btn btn-primary">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <span>Nueva Cita</span>
+  </a>
+</div>
+
+<div class="filters glass">
+  <form method="get" action="/agenda" style="display: flex; gap: 10px; align-items: center; width: 100%;">
+    <div class="field" style="margin: 0; flex: 1;">
+      <label for="fecha" style="display:none;">Fecha</label>
+      <input class="input" type="date" id="fecha" name="fecha" value="<%= @fecha_actual %>" onchange="this.form.submit()">
+    </div>
+  </form>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <h2>Citas para el <%= Date.parse(@fecha_actual).strftime('%d/%m/%Y') %></h2>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Hora</th>
+          <th>Paciente</th>
+          <th>Médico</th>
+          <th>Motivo</th>
+          <th class="c-state">Estado</th>
+          <th class="c-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @citas.empty? %>
+          <tr>
+            <td colspan="6" style="text-align:center; padding: 2rem; color: var(--text-2);">
+              No hay citas agendadas para este día.
+            </td>
+          </tr>
+        <% else %>
+          <% @citas.each do |cita| %>
+            <tr>
+              <td><b><%= cita.fecha_hora.strftime('%H:%M') %></b></td>
+              <td class="cell-name"><b><%= cita.paciente.nombre_completo %></b></td>
+              <td><%= cita.medico.nombre_completo %></td>
+              <td><span style="color:var(--text-2); font-size: 0.8rem;"><%= cita.motivo || '-' %></span></td>
+              <td class="c-state">
+                <span class="status <%= cita.estado == 'cancelada' ? 'off' : 'ok' %>">
+                  <%= cita.estado.capitalize %>
+                </span>
+              </td>
+              <td class="c-actions">
+                <% if cita.estado != 'cancelada' %>
+                  <form method="post" action="/agenda/<%= cita.id %>/cancelar" style="margin: 0;">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que querés cancelar esta cita?')">
+                      Cancelar
+                    </button>
+                  </form>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,252 @@
+/* ═══ BOTÓN DE HORARIOS (PANTALLA DISPONIBILIDAD) ═══ */
+/* ═══ BOTÓN DE HORARIOS (PANTALLA DISPONIBILIDAD) ═══ */
+.btn-horarios {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  background: var(--field);
+  color: var(--text);
+  border: 1px solid var(--brd-2);
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-horarios:hover {
+  background: var(--acc-soft);
+  border-color: var(--acc);
+  color: var(--acc-txt);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--glow);
+}
+
+.btn-horarios svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ═══ FILA DE HORARIOS (MULTI-BLOQUE) ═══ */
+.schedule-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  background: var(--panel-2);
+  border: 1px solid var(--brd);
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  transition: border-color 0.15s ease;
+}
+
+.schedule-row:hover {
+  border-color: var(--brd-2);
+}
+
+.schedule-day {
+  width: 120px;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-top: 0.6rem;
+}
+
+.schedule-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.schedule-block {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.schedule-inputs {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.schedule-inputs .field {
+  margin-bottom: 0;
+  flex: 1;
+  max-width: 160px;
+}
+
+
+/* ═══ EL ARREGLO DEFINITIVO DEL RELOJ ═══ */
+
+/* Forzamos el color del texto de la hora */
+.schedule-inputs input[type="time"] {
+  color: var(--text) !important;
+}
+
+/* En modo oscuro, forzamos el icono del reloj a blanco */
+html[data-theme="dark"] .schedule-inputs input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.5) !important;
+  opacity: 0.8 !important;
+  cursor: pointer;
+}
+
+/* En modo claro, dejamos el icono negro por defecto */
+html[data-theme="light"] .schedule-inputs input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: none !important;
+  opacity: 0.6 !important;
+  cursor: pointer;
+}
+
+
+/* ═══ BOTONES DE AGREGAR / ELIMINAR BLOQUE ═══ */
+.btn-add-block, .btn-remove-block {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: 0.15s;
+  font-family: inherit;
+}
+
+.btn-add-block {
+  color: var(--acc-txt);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  width: fit-content;
+  margin-top: 0.25rem;
+  white-space: nowrap;
+}
+
+.btn-add-block:hover {
+  background: var(--acc-soft);
+}
+
+.btn-add-block svg {
+  width: 1rem !important;
+  height: 1rem !important;
+  flex-shrink: 0;
+}
+
+.btn-remove-block {
+  color: var(--text-2);
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+}
+
+.btn-remove-block:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 640px) {
+  .schedule-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+  .schedule-day {
+    margin-top: 0;
+  }
+  .schedule-content {
+    width: 100%;
+  }
+  .schedule-block {
+    flex-direction: column;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--brd);
+    padding-bottom: 1rem;
+    width: 100%;
+  }
+  .schedule-inputs {
+    flex-direction: column;
+    width: 100%;
+  }
+  .schedule-inputs .field {
+    max-width: 100%;
+  }
+}
+
+
+
+
+
+/* ═══ RELOJ PERSONALIZADO (CUSTOM TIME PICKER) ═══ */
+.custom-time-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-time-wrapper input {
+  cursor: pointer;
+}
+
+.time-popover {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  width: 100%;
+  min-width: 140px;
+  background: var(--panel-2);
+  border: 1px solid var(--brd-2);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow);
+  z-index: 1000;
+  display: none;
+  overflow: hidden;
+}
+
+.time-popover.open {
+  display: flex;
+}
+
+.time-col {
+  flex: 1;
+  max-height: 180px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.time-col::-webkit-scrollbar {
+  width: 6px;
+}
+.time-col::-webkit-scrollbar-thumb {
+  background: var(--brd-2);
+  border-radius: 4px;
+}
+
+.time-col:first-child {
+  border-right: 1px solid var(--brd);
+}
+
+.time-opt {
+  padding: 0.4rem 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.time-opt:hover {
+  background: var(--hover);
+}
+
+.time-opt.selected {
+  background: var(--acc-soft);
+  color: var(--acc-txt);
+  font-weight: 700;
+}

@@ -37,9 +37,10 @@
       <!-- Fila 3: Correo y Estado -->
       <div class="field fw-2">
         <label for="email">Correo Electrónico <span class="opt">(opcional)</span></label>
-        <input class="input" type="email" id="email" name="email" value="<%= @paciente.email %>">
+        <input class="input" type="text" id="email" name="email" value="<%= @paciente.email %>">
       </div>
 
+      
       <!-- Switch de Estado al lado del Correo -->
       <% if !@paciente.new? %>
         <div class="field fw-2">

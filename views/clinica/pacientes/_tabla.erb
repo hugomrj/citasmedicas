@@ -61,3 +61,28 @@
     </tbody>
   </table>
 </div>
+
+<!-- Footer con Paginación -->
+<div class="panel-foot">
+  <span>
+    Mostrando <%= @pacientes.size %> de <%= numero_abreviado(@total_registros) %> registros
+  </span>
+  
+  <div class="pager" id="paginador">
+    <!-- Botón Anterior -->
+    <button <%= @pagina_actual <= 1 ? 'disabled' : '' %> data-page="<%= @pagina_actual - 1 %>">‹</button>
+    
+    <!-- Números de página -->
+    <% (1..@total_paginas).each do |p| %>
+      <!-- Mostramos solo la página actual, la anterior, la siguiente y la primera/última si estamos lejos -->
+      <% if p == 1 || p == @total_paginas || (p >= @pagina_actual - 1 && p <= @pagina_actual + 1) %>
+        <button class="<%= p == @pagina_actual ? 'on' : '' %>" data-page="<%= p %>"><%= p %></button>
+      <% elsif p == @pagina_actual - 2 || p == @pagina_actual + 2 %>
+        <button disabled>...</button>
+      <% end %>
+    <% end %>
+    
+    <!-- Botón Siguiente -->
+    <button <%= @pagina_actual >= @total_paginas ? 'disabled' : '' %> data-page="<%= @pagina_actual + 1 %>">›</button>
+  </div>
+</div>

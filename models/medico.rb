@@ -1,14 +1,17 @@
 class Medico < Sequel::Model(:medicos)
   many_to_one :usuario
+  many_to_one :especialidad # <--- NUEVA ASOCIACIÓN
   one_to_many :disponibilidades, class: :Disponibilidad
   one_to_many :bloqueos
   one_to_many :citas
 
   def validate
     super
-    validates_presence [:nombre, :apellido, :especialidad, :matricula]
+    # Cambiamos :especialidad por :especialidad_id
+    validates_presence [:nombre, :apellido, :especialidad_id]
     validates_unique :matricula
     validates_integer :horizonte_dias, allow_nil: true
+    
     if horizonte_dias && horizonte_dias <= 0
       errors.add(:horizonte_dias, 'debe ser mayor que cero')
     end

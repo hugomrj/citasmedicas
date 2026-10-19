@@ -1,0 +1,42 @@
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Médico</th>
+        <th>Especialidad</th>
+        <th>Horizonte</th>
+        <th class="c-actions">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @medicos.empty? %>
+        <tr>
+          <td colspan="4" style="text-align:center; padding: 2rem; color: var(--text-2);">
+            No se encontraron médicos.
+          </td>
+        </tr>
+      <% else %>
+        <% @medicos.each do |med| %>
+          <tr>
+            <td class="cell-name">
+              <b><%= med.nombre_completo %></b>
+            </td>
+            <td><%= med.especialidad&.nombre %></td>
+            <td><%= med.horizonte_dias ? "#{med.horizonte_dias} días" : 'Global' %></td>
+
+
+              <td class="c-actions">
+                <a href="/disponibilidad/<%= med.id %>" class="btn-horarios">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  Horarios
+                </a>
+              </td>
+
+
+
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

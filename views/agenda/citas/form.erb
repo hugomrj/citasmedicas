@@ -1,0 +1,112 @@
+<div class="page-head">
+  <div>
+    <h1>Nueva Cita</h1>
+    <p>Seleccioná el paciente, el médico y el turno disponible.</p>
+  </div>
+  <a href="/agenda" class="btn btn-ghost">Volver a la agenda</a>
+</div>
+
+<div class="panel glass form-panel">
+  <form method="post" action="/agenda" id="formCita">
+    <div class="form-grid">
+      
+      <div class="field fw-2">
+        <label for="paciente_id">Paciente</label>
+        <select class="vanilla-select" name="paciente_id" id="paciente_id" required>
+          <option value="" disabled selected>Seleccionar paciente...</option>
+          <% @pacientes.each do |p| %>
+            <option value="<%= p.id %>"><%= p.nombre_completo %> (<%= p.telefono %>)</option>
+          <% end %>
+        </select>
+      </div>
+
+      <div class="field fw-2">
+        <label for="medico_id">Médico</label>
+        <select class="vanilla-select" name="medico_id" id="medico_id" required>
+          <option value="" disabled selected>Seleccionar médico...</option>
+          <% @medicos.each do |m| %>
+            <option value="<%= m.id %>"><%= m.nombre_completo %> - <%= m.especialidad&.nombre %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div class="field fw-2">
+        <label for="fecha">Fecha</label>
+        <input class="input" type="date" id="fecha" name="fecha" required>
+      </div>
+
+      <div class="field fw-2">
+        <label for="hora">Horario Disponible</label>
+        <select class="vanilla-select" name="fecha_hora" id="hora" required>
+          <option value="" disabled selected>Primero elegí médico y fecha...</option>
+        </select>
+      </div>
+
+      <div class="field fw-full">
+        <label for="motivo">Motivo de la consulta <span class="opt">(opcional)</span></label>
+        <input class="input" type="text" id="motivo" name="motivo" placeholder="Ej. Control de rutina">
+      </div>
+
+    </div>
+
+    <div class="form-sep"></div>
+
+    <div class="form-actions">
+      <span class="spacer"></span>
+      <button type="submit" class="btn btn-primary" id="btnGuardar" disabled>
+        Agendar Cita
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const medicoSelect = document.getElementById('medico_id');
+  const fechaInput = document.getElementById('fecha');
+  const horaSelect = document.getElementById('hora');
+  const btnGuardar = document.getElementById('btnGuardar');
+
+  // Función que busca los turnos libres en el servidor
+  async function buscarTurnos() {
+    const medicoId = medicoSelect.value;
+    const fecha = fechaInput.value;
+
+    if (!medicoId || !fecha) return;
+
+    // Resetear el select de horas
+    horaSelect.innerHTML = '<option value="" disabled selected>Buscando turnos...</option>';
+    // Destruimos la instancia anterior del vanilla select para que se actualice
+    const wrapper = horaSelect.closest('.vanilla-select-wrapper');
+    if (wrapper) {
+      wrapper.replaceWith(horaSelect); 
+      horaSelect.classList.remove('vanilla-select-original');
+    }
+
+    try {
+      const res = await fetch(`/agenda/slots?medico_id=${medicoId}&fecha=${fecha}`);
+      const slots = await res.json();
+
+      if (slots.length === 0) {
+        horaSelect.innerHTML = '<option value="" disabled selected>No hay turnos disponibles</option>';
+        btnGuardar.disabled = true;
+      } else {
+        horaSelect.innerHTML = '<option value="" disabled selected>Seleccionar hora...</option>';
+        slots.forEach(slot => {
+          horaSelect.innerHTML += `<option value="${slot.datetime}">${slot.hora}</option>`;
+        });
+        btnGuardar.disabled = false;
+      }
+    } catch (err) {
+      horaSelect.innerHTML = '<option value="" disabled selected>Error al cargar turnos</option>';
+    }
+
+    // Volvemos a inicializar el vanilla-select con las nuevas opciones
+    if (typeof initVanillaSelects === 'function') {
+      initVanillaSelects();
+    }
+  }
+
+  // Escuchamos cambios en el médico y en la fecha
+  medicoSelect.addEventListener('change', buscarTurnos);
+  fechaInput.addEventListener('change', buscarTurnos);
+</script>

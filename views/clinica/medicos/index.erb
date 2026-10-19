@@ -1,0 +1,105 @@
+<div class="page-head">
+  <div>
+    <h1>Médicos</h1>
+    <p>Administra el equipo médico y sus especialidades.</p>
+  </div>
+  <a href="/medicos/nuevo" class="btn btn-primary">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <span>Nuevo Médico</span>
+  </a>
+</div>
+
+<div class="filters glass">
+  <div class="f-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" placeholder="Buscar en médicos..." id="inpBuscar" value="<%= @query_actual %>">
+    <kbd>/</kbd>
+  </div>
+  
+  <button class="btn btn-ghost" id="btnClear" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    Limpiar
+  </button>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <h2>Listado de Médicos</h2>
+      
+      <div class="tabs" id="listTabs">
+        <button class="tab <%= @status_actual == 'todos' ? 'on' : '' %>" data-status="todos">
+          Todos <span class="t-count"><%= numero_abreviado(@contador_todos) %></span>
+        </button>
+        <button class="tab <%= @status_actual == 'activos' ? 'on' : '' %>" data-status="activos">
+          Activos <span class="t-count"><%= numero_abreviado(@contador_activos) %></span>
+        </button>
+        <button class="tab <%= @status_actual == 'inactivos' ? 'on' : '' %>" data-status="inactivos">
+          Inactivos <span class="t-count"><%= numero_abreviado(@contador_inactivos) %></span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="contenedorTabla">
+    <%= erb :'clinica/medicos/_tabla', layout: false %>
+  </div>
+</div>
+
+<script>
+  const inputBuscar = document.getElementById('inpBuscar');
+  const contenedorTabla = document.getElementById('contenedorTabla');
+  const tabs = document.querySelectorAll('.tab');
+  const btnClear = document.getElementById('btnClear');
+  
+  let currentStatus = '<%= @status_actual %>';
+  let timeoutId = null;
+
+  async function fetchTabla(page = 1) {
+    const q = inputBuscar.value.trim();
+    const url = `/medicos?q=${encodeURIComponent(q)}&status=${currentStatus}&page=${page}`;
+    
+    try {
+      const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      const html = await res.text();
+      contenedorTabla.innerHTML = html;
+    } catch(err) {
+      console.error('Error al buscar:', err);
+    }
+  }
+
+  inputBuscar.addEventListener('input', () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fetchTabla(1), 300);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
+      e.preventDefault();
+      inputBuscar.focus();
+    }
+  });
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      tabs.forEach(t => t.classList.remove('on'));
+      e.target.closest('.tab').classList.add('on');
+      currentStatus = e.target.closest('.tab').dataset.status;
+      fetchTabla(1);
+    });
+  });
+
+  btnClear.addEventListener('click', () => {
+    inputBuscar.value = '';
+    currentStatus = 'todos';
+    tabs.forEach(t => t.classList.remove('on'));
+    document.querySelector('.tab[data-status="todos"]').classList.add('on');
+    fetchTabla(1);
+  });
+
+  contenedorTabla.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-page]');
+    if (!btn || btn.disabled) return;
+    fetchTabla(btn.dataset.page);
+  });
+</script>   

@@ -33,11 +33,14 @@
 })();
 </script>
 
-
 <link rel="stylesheet" href="/css/01-theme.css">
 <link rel="stylesheet" href="/css/02-layout.css">
 <link rel="stylesheet" href="/css/03-components.css">
 <link rel="stylesheet" href="/css/04-dashboard.css">
+<link rel="stylesheet" href="/css/06-custom.css">
+
+<!-- NUEVO: CSS del Vanilla Select -->
+<link rel="stylesheet" href="/css/vanilla-select.css">
 </head>
 
 <body>
@@ -71,26 +74,30 @@
 <div class="toasts" id="toasts"></div>
 
 <!-- SCRIPTS -->
-<script src="/js/app.js"></script>
 <script src="/js/theme.js"></script>
 <script src="/js/components.js"></script>
+<script src="/js/app.js"></script>
+<!-- NUEVO: JS del Vanilla Select -->
+<script src="/js/vanilla-select.js"></script>
 
-<% unless flash.empty? %>
+<!-- Lógica para mostrar los mensajes flash (Rack::Flash) -->
+<% if flash[:success] || flash[:error] || flash[:warning] || flash[:info] %>
 <script>
   (function(){
-    var msgs = <%= flash.pendientes.to_json %>;
-    Object.keys(msgs).forEach(function(k){
-      var map = {success:'ok', error:'err', warning:'warn', info:'info'};
-      var tipo = map[k] || 'info';
-      var titulo = {ok:'Éxito', err:'Error', warn:'Atención', info:'Info'}[tipo];
-      setTimeout(function(){
-        if (typeof toast === 'function') {
-          toast(tipo, titulo, msgs[k]);
-        }
-      }, 150);
-    });
+    var tipo = '<%= flash[:success] ? "ok" : (flash[:error] ? "err" : (flash[:warning] ? "warn" : "info")) %>';
+    
+    // Usamos to_json para escapar correctamente comillas y saltos de línea
+    var mensaje = <%= (flash[:success] || flash[:error] || flash[:warning] || flash[:info]).to_json %>;
+    var titulo = tipo === 'ok' ? 'Éxito' : (tipo === 'err' ? 'Error' : 'Atención');
+    
+    setTimeout(function(){
+      if (typeof toast === 'function') {
+        toast(tipo, titulo, mensaje);
+      }
+    }, 150);
   })();
 </script>
 <% end %>
+
 </body>
 </html>

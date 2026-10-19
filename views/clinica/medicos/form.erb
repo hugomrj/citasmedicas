@@ -1,0 +1,79 @@
+<div class="page-head">
+  <div>
+    <h1><%= @medico.new? ? 'Nuevo Médico' : 'Editar Médico' %></h1>
+    <p>Completá los datos profesionales del médico.</p>
+  </div>
+</div>
+
+<div class="panel glass form-panel">
+  <form method="post" action="<%= @medico.new? ? '/medicos' : "/medicos/#{@medico.id}" %>">
+    <% if !@medico.new? %>
+      <input type="hidden" name="_method" value="PUT">
+    <% end %>
+
+    <div class="form-grid">
+      <div class="field fw-2">
+        <label for="nombre">Nombre</label>
+        <input class="input" type="text" id="nombre" name="nombre" value="<%= @medico.nombre %>" required>
+      </div>
+
+      <div class="field fw-2">
+        <label for="apellido">Apellido</label>
+        <input class="input" type="text" id="apellido" name="apellido" value="<%= @medico.apellido %>" required>
+      </div>
+
+      <div class="field fw-2">
+        <label for="especialidad_id">Especialidad</label>
+        <select class="vanilla-select" name="especialidad_id" id="especialidad_id" required>
+          <option value="" disabled <%= @medico.especialidad_id.nil? ? 'selected' : '' %>>Seleccionar especialidad...</option>
+          <% @especialidades.each do |esp| %>
+            <option value="<%= esp.id %>" <%= @medico.especialidad_id == esp.id ? 'selected' : '' %>><%= esp.nombre %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div class="field fw-2">
+        <label for="matricula">Matrícula Profesional <span class="opt">(opcional)</span></label>
+        <input class="input" type="text" id="matricula" name="matricula" value="<%= @medico.matricula %>">
+      </div>
+
+      <div class="field fw-2">
+        <label for="telefono">Teléfono <span class="opt">(opcional)</span></label>
+        <input class="input" type="text" id="telefono" name="telefono" value="<%= @medico.telefono %>">
+      </div>
+
+      <!-- Acá estaba el error: decía @paciente en lugar de @medico -->
+      <div class="field fw-2">
+        <label for="email">Correo Electrónico <span class="opt">(opcional)</span></label>
+        <input class="input" type="text" id="email" name="email" value="<%= @medico.email %>">
+      </div>
+
+      <div class="field fw-2">
+        <label for="horizonte_dias">Horizonte de reserva (días) <span class="opt">(opcional)</span></label>
+        <input class="input" type="text" id="horizonte_dias" name="horizonte_dias" value="<%= @medico.horizonte_dias %>" placeholder="Ej. 60" pattern="\d*" title="Solo se permiten números">
+        <div class="hint">Si se deja vacío, se usará el horizonte global del sistema.</div>
+      </div>
+
+      <% if !@medico.new? %>
+        <div class="field fw-2">
+          <label for="fActive">Estado</label>
+          <label class="switch-row">
+            <input type="checkbox" id="fActive" name="activo" class="switch" value="1" <%= @medico.activo ? 'checked' : '' %>>
+            <span class="switch-state"></span>
+          </label>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="form-sep"></div>
+
+    <div class="form-actions">
+      <a href="/medicos" class="btn btn-ghost">Cancelar</a>
+      <span class="spacer"></span>
+      <button type="submit" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        <span>Guardar Médico</span>
+      </button>
+    </div>
+  </form>
+</div>

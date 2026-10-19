@@ -1,28 +1,30 @@
+
+
+
 module ClinicaPacientesRoutes
   def self.registered(app)
-    # 1. Listado con filtros
+
     app.get '/pacientes' do
       requiere_login!
       @crumb_here = 'Pacientes'
       
       query = params[:q].to_s.strip
       status_filter = params[:status] || 'activos'
-      order_filter = params[:order] || 'default'
+      @pagina_actual = (params[:page] || 1).to_i
+      limite = 20 # Cantidad de pacientes por página
       
       ds = Paciente.dataset
       
-      # Filtro por pestaña
       case status_filter
       when 'activos' then ds = ds.where(archivado: false)
       when 'inactivos' then ds = ds.where(archivado: true)
       end
 
-      # Filtro por texto
       if query.empty?
-        @pacientes = ds
+        @pacientes_ds = ds
       else
         patron = "%#{query.downcase}%"
-        @pacientes = ds.where(
+        @pacientes_ds = ds.where(
           Sequel.like(Sequel.function(:lower, :nombre), patron) |
           Sequel.like(Sequel.function(:lower, :apellido), patron) |
           Sequel.like(Sequel.function(:lower, :telefono), patron) |
@@ -30,20 +32,20 @@ module ClinicaPacientesRoutes
         )
       end
 
-      # Aplicar orden
-      case order_filter
-      when 'name'
-        @pacientes = @pacientes.order(:apellido, :nombre).all
-      when 'recent'
-        @pacientes = @pacientes.order(Sequel.desc(:created_at)).all
-      else
-        @pacientes = @pacientes.order(:apellido, :nombre).all # Default
-      end
+      # Contamos el total ANTES de paginar
+      @total_registros = @pacientes_ds.count
+      @total_paginas = (@total_registros.to_f / limite).ceil
+      
+      # Traemos solo los 20 de la página actual
+      @pacientes = @pacientes_ds.order(:apellido, :nombre)
+                                .limit(limite)
+                                .offset((@pagina_actual - 1) * limite)
+                                .all
 
       @status_actual = status_filter
       @query_actual = query
       
-      # Contadores para las pestañas (se calculan sobre TODA la tabla, sin importar el filtro actual)
+      # Contadores para las pestañas
       @contador_todos = Paciente.count
       @contador_activos = Paciente.where(archivado: false).count
       @contador_inactivos = Paciente.where(archivado: true).count
@@ -62,6 +64,8 @@ module ClinicaPacientesRoutes
       @paciente = Paciente.new
       erb :'clinica/pacientes/form', layout: :'layout/base'
     end
+
+
 
     # 3. Guardar NUEVO
     app.post '/pacientes' do
@@ -83,6 +87,9 @@ module ClinicaPacientesRoutes
         erb :'clinica/pacientes/form', layout: :'layout/base'
       end
     end
+
+
+    
 
     # 4. Formulario EDITAR / VER
     app.get '/pacientes/:id/editar' do

@@ -1,0 +1,239 @@
+<div class="page-head">
+  <div>
+    <h1>Horarios de <%= @medico.nombre_completo %></h1>
+    <p>Definí el horario habitual de atención. Podés agregar múltiples bloques por día.</p>
+  </div>
+  <a href="/disponibilidad" class="btn btn-ghost">
+    Volver al listado
+  </a>
+</div>
+
+<div class="panel glass form-panel">
+  <form method="post" action="/disponibilidad/<%= @medico.id %>">
+    
+    <div style="display: flex; flex-direction: column;">
+      
+      <% @dias.each do |dia_num, dia_nombre| %>
+        <% bloques_dia = @bloques.select { |b| b.dia_semana == dia_num } %>
+        
+        <div class="schedule-row">
+          <div class="schedule-day">
+            <%= dia_nombre %>
+          </div>
+          
+          <div class="schedule-content" id="contenedor_dia_<%= dia_num %>">
+            
+            <% if bloques_dia.empty? %>
+              <div class="schedule-block">
+                <div class="schedule-inputs">
+                  <div class="field custom-time-wrapper">
+                    <!-- QUITAMOS EL READONLY -->
+                    <input class="input time-input" type="text" placeholder="08:00" name="horarios[<%= dia_num %>][0][inicio]">
+                  </div>
+                  <div class="field custom-time-wrapper">
+                    <input class="input time-input" type="text" placeholder="12:00" name="horarios[<%= dia_num %>][0][fin]">
+                  </div>
+                </div>
+              </div>
+            <% else %>
+              <% bloques_dia.each_with_index do |bloque, index| %>
+                <div class="schedule-block">
+                  <div class="schedule-inputs">
+                    <div class="field custom-time-wrapper">
+                      <input class="input time-input" type="text" name="horarios[<%= dia_num %>][<%= index %>][inicio]" value="<%= bloque.hora_inicio %>">
+                    </div>
+                    <div class="field custom-time-wrapper">
+                      <input class="input time-input" type="text" name="horarios[<%= dia_num %>][<%= index %>][fin]" value="<%= bloque.hora_fin %>">
+                    </div>
+                  </div>
+                  <button type="button" class="btn-remove-block" onclick="this.closest('.schedule-block').remove()" title="Eliminar este horario">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              <% end %>
+            <% end %>
+
+            <button type="button" class="btn-add-block" onclick="agregarBloque(<%= dia_num %>)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Agregar otro horario
+            </button>
+          </div>
+        </div>
+      <% end %>
+
+    </div>
+
+    <div class="form-sep" style="margin-top: 1.5rem;"></div>
+
+    <div class="form-actions">
+      <span class="spacer"></span>
+      <button type="submit" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        Guardar Horarios
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // 1. Inicializar el reloj visual
+  function initCustomTimePickers() {
+    document.querySelectorAll('.time-input').forEach(input => {
+      if (input.dataset.hasPicker) return;
+      input.dataset.hasPicker = "true";
+
+      const wrapper = input.closest('.custom-time-wrapper');
+      
+      const popover = document.createElement('div');
+      popover.className = 'time-popover';
+      
+      const colHours = document.createElement('div');
+      colHours.className = 'time-col';
+      const colMins = document.createElement('div');
+      colMins.className = 'time-col';
+
+      // Llenar horas
+      for (let i = 0; i < 24; i++) {
+        const h = i.toString().padStart(2, '0');
+        const el = document.createElement('div');
+        el.className = 'time-opt';
+        el.textContent = h;
+        el.onclick = () => { actualizarHora(input, popover, h, null); };
+        colHours.appendChild(el);
+      }
+
+      // Llenar minutos (cada 5)
+      for (let i = 0; i < 60; i += 5) {
+        const m = i.toString().padStart(2, '0');
+        const el = document.createElement('div');
+        el.className = 'time-opt';
+        el.textContent = m;
+        el.onclick = () => { actualizarHora(input, popover, null, m); };
+        colMins.appendChild(el);
+      }
+
+      popover.appendChild(colHours);
+      popover.appendChild(colMins);
+      wrapper.appendChild(popover);
+
+      // Abrir el reloj al hacer clic
+      input.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.time-popover.open').forEach(p => {
+          if (p !== popover) p.classList.remove('open');
+        });
+        popover.classList.toggle('open');
+        marcarSeleccionado(input.value, popover);
+      });
+
+      // Auto-formatear cuando el usuario escribe y sale del input
+      input.addEventListener('blur', function() {
+        let val = this.value.trim().replace('.', ':'); // Permitir escribir 8.30
+        
+        if (val) {
+          // Si escribió "830" o "0830" (sin dos puntos)
+          if (!val.includes(':')) {
+            if (val.length === 3) val = '0' + val; 
+            if (val.length === 4) val = val.substring(0,2) + ':' + val.substring(2,4);
+            else if (val.length <= 2) val = val + ':00'; 
+          }
+          
+          let parts = val.split(':');
+          if (parts.length === 2) {
+            let h = parseInt(parts[0]);
+            let m = parseInt(parts[1]);
+            if (!isNaN(h) && !isNaN(m) && h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+              // Formatear correctamente a HH:MM
+              this.value = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');
+            }
+          }
+        }
+        
+        // Actualizar la selección visual del reloj
+        marcarSeleccionado(this.value, popover);
+      });
+
+      // Si presiona Enter, cerramos el reloj
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.blur();
+          popover.classList.remove('open');
+        }
+      });
+    });
+  }
+
+  // Actualizar el input cuando se elige del reloj visual
+  function actualizarHora(input, popover, h, m) {
+    let valorActual = input.value || "00:00";
+    let [currH, currM] = valorActual.split(':');
+    
+    if (h !== null) currH = h;
+    if (m !== null) currM = m;
+    
+    input.value = `${currH}:${currM}`;
+    marcarSeleccionado(input.value, popover);
+  }
+
+  // Resaltar la opción seleccionada
+  function marcarSeleccionado(valor, popover) {
+    if (!valor) return;
+    const [h, m] = valor.split(':');
+    const cols = popover.querySelectorAll('.time-col');
+    
+    if(cols.length === 2) {
+      cols[0].querySelectorAll('.time-opt').forEach(el => {
+        el.classList.toggle('selected', el.textContent === h);
+      });
+      cols[1].querySelectorAll('.time-opt').forEach(el => {
+        el.classList.toggle('selected', el.textContent === m);
+      });
+    }
+  }
+
+  // Cerrar el reloj al hacer clic afuera
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.time-popover.open').forEach(p => p.classList.remove('open'));
+  });
+
+  // Agregar bloque dinámicamente
+  function agregarBloque(diaNum) {
+    const contenedor = document.getElementById(`contenedor_dia_${diaNum}`);
+    
+    let maxIndex = -1;
+    contenedor.querySelectorAll('.schedule-block input').forEach(input => {
+      const match = input.name.match(/\[(\d+)\]/);
+      if (match) {
+        const index = parseInt(match[1]);
+        if (index > maxIndex) maxIndex = index;
+      }
+    });
+    
+    const nuevoIndex = maxIndex + 1;
+
+    const nuevoBloqueHTML = `
+      <div class="schedule-block">
+        <div class="schedule-inputs">
+          <div class="field custom-time-wrapper">
+            <input class="input time-input" type="text" placeholder="08:00" name="horarios[${diaNum}][${nuevoIndex}][inicio]">
+          </div>
+          <div class="field custom-time-wrapper">
+            <input class="input time-input" type="text" placeholder="12:00" name="horarios[${diaNum}][${nuevoIndex}][fin]">
+          </div>
+        </div>
+        <button type="button" class="btn-remove-block" onclick="this.closest('.schedule-block').remove()" title="Eliminar este horario">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    `;
+
+    const btnAgregar = contenedor.querySelector('.btn-add-block');
+    btnAgregar.insertAdjacentHTML('beforebegin', nuevoBloqueHTML);
+    
+    initCustomTimePickers();
+  }
+
+  // Iniciar
+  document.addEventListener('DOMContentLoaded', initCustomTimePickers);
+</script>

@@ -1,0 +1,31 @@
+<div class="page-head">
+  <div>
+    <h1><%= @especialidad.new? ? 'Nueva Especialidad' : 'Editar Especialidad' %></h1>
+    <p>Ingresá el nombre de la especialidad médica.</p>
+  </div>
+</div>
+
+<div class="panel glass form-panel">
+  <form method="post" action="<%= @especialidad.new? ? '/especialidades' : "/especialidades/#{@especialidad.id}" %>">
+    <% if !@especialidad.new? %>
+      <input type="hidden" name="_method" value="PUT">
+    <% end %>
+
+    <div class="form-grid">
+      <div class="field fw-full">
+        <label for="nombre">Nombre de la Especialidad</label>
+        <input class="input" type="text" id="nombre" name="nombre" value="<%= @especialidad.nombre %>" required autofocus>
+      </div>
+    </div>
+
+    <div class="form-sep"></div>
+
+    <div class="form-actions">
+      <a href="/especialidades" class="btn btn-ghost">Cancelar</a>
+      <span class="spacer"></span>
+      <button type="submit" class="btn btn-primary">
+        Guardar Especialidad
+      </button>
+    </div>
+  </form>
+</div>

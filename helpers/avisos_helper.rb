@@ -8,4 +8,5 @@ module AvisosHelper
     return [] unless autenticado?
     @avisos_pendientes_lista ||= AvisoService.pendientes.first(10)
   end
+
 end
