@@ -1,16 +1,17 @@
 module UsuarioService
   module_function
 
-  def autenticar(email:, password:)
-    usuario = Usuario.where(email: email.to_s.strip.downcase).first
+  def autenticar(username:, password:)
+    usuario = Usuario.where(username: username.to_s.strip.downcase).first
     return nil unless usuario && usuario.activo
     usuario.authenticate(password) || nil
   end
 
-  def crear(nombre:, apellido:, email:, password:, rol:)
+  def crear(nombre:, apellido:, username:, email:, password:, rol:)
     Usuario.create(
       nombre:                nombre.to_s.strip,
       apellido:              apellido.to_s.strip,
+      username:              username.to_s.strip.downcase,
       email:                 email.to_s.strip.downcase,
       password:              password,
       password_confirmation: password,

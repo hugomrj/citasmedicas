@@ -1,0 +1,288 @@
+/* ═══════════════════════════════════════════════
+   04-DASHBOARD.CSS
+   Grid, KPIs, Gráficos y Actividades
+   ═══════════════════════════════════════════════ */
+
+/* ═══ DASHBOARD GRID ═══ */
+.dash-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 0.875rem; /* 14px */
+    margin-bottom: 0.875rem;
+  }
+  
+  .dash-card {
+    border-radius: 1rem; /* 16px */
+    padding: 1rem 1.125rem; /* 16px 18px */
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5625rem; /* 9px */
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .dash-card:hover {
+    border-color: var(--acc);
+    transform: translateY(-0.125rem); /* 2px */
+    box-shadow: 0 10px 30px hsl(var(--h) 40% 2% / 0.45), 0 0 24px hsl(var(--h) var(--s) 50% / 0.08);
+  }
+  
+  .dc-3 { grid-column: span 3; }
+  .dc-4 { grid-column: span 4; }
+  .dc-8 { grid-column: span 8; }
+  .dc-12 { grid-column: span 12; }
+  
+  /* ═══ METRIC KPIs ═══ */
+  .metric .ic {
+    width: 2.375rem; /* 38px */
+    height: 2.375rem;
+    border-radius: 0.6875rem; /* 11px */
+    display: grid;
+    place-items: center;
+    color: var(--acc);
+    background: var(--acc-soft);
+    border: 1px solid color-mix(in srgb, var(--acc) 18%, transparent);
+  }
+  
+  .metric .ic svg {
+    width: 1.125rem; /* 18px */
+    height: 1.125rem;
+  }
+  
+  .metric .lbl {
+    font-size: 0.75rem; /* 12px */
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  
+  .metric .val {
+    font-size: 1.375rem; /* 22px */
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  
+  .metric-foot {
+    display: flex;
+    align-items: center;
+    gap: 0.4375rem; /* 7px */
+    font-size: 0.71875rem; /* 11.5px */
+    color: var(--text-2);
+  }
+  
+  .delta {
+    font-size: 0.65625rem; /* 10.5px */
+    font-weight: 700;
+    padding: 0.15625rem 0.5rem; /* 2.5px 8px */
+    border-radius: 999rem;
+  }
+  
+  .delta.up {
+    background: var(--ok-bg);
+    color: var(--ok);
+  }
+  
+  .delta.down {
+    background: var(--danger-bg);
+    color: var(--danger);
+  }
+  
+  .delta.flat {
+    background: var(--hover);
+    color: var(--text-2);
+  }
+  
+  /* ═══ GRÁFICOS ═══ */
+  .chart-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem; /* 12px */
+    flex-wrap: wrap;
+  }
+  
+  .chart-head h3 {
+    font-size: 0.90625rem; /* 14.5px */
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  
+  .chart-head .hint {
+    font-size: 0.75rem; /* 12px */
+    color: var(--text-2);
+  }
+  
+  .chart-value {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  
+  .chart-value small {
+    font-size: 0.8125rem; /* 13px */
+    font-weight: 600;
+    color: var(--text-2);
+  }
+  
+  .chart-box {
+    position: relative;
+    flex: 1;
+    min-height: 10.625rem; /* 170px */
+  }
+  
+  .linechart {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .chart-line {
+    fill: none;
+    stroke: var(--acc);
+    stroke-width: 2.5; /* Atributo SVG, se mantiene en valor numérico puro */
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 4px 10px var(--glow));
+  }
+  
+  .chart-grid-l {
+    stroke: var(--brd);
+    stroke-width: 1;
+    stroke-dasharray: 3 5;
+  }
+  
+  .chart-dot {
+    width: 0.75rem; /* 12px */
+    height: 0.75rem;
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+  }
+  
+  .chart-dot:hover::after {
+    content: '';
+    position: absolute;
+    inset: 0.125rem; /* 2px */
+    border-radius: 50%;
+    background: var(--acc);
+    box-shadow: 0 0 0.625rem var(--glow); /* 10px */
+  }
+  
+  .chart-xlabels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0.25rem 0; /* 8px 4px 0 */
+    font-size: 0.65625rem; /* 10.5px */
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  
+  /* ═══ ACTIVIDADES ═══ */
+  .acts {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem; /* 12px */
+  }
+  
+  .acts li {
+    display: flex;
+    align-items: center;
+    gap: 0.6875rem; /* 11px */
+    font-size: 0.78125rem; /* 12.5px */
+  }
+  
+  .acts li.wrap {
+    flex-wrap: wrap;
+  }
+  
+  .acts li.wrap .txt {
+    flex: 1;
+    min-width: 8.125rem; /* 130px */
+  }
+  
+  .dot {
+    width: 0.5rem; /* 8px */
+    height: 0.5rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--acc);
+    box-shadow: 0 0 0.5rem var(--glow); /* 8px */
+  }
+  
+  .dot.alt {
+    background: var(--acc-txt);
+  }
+  
+  .acts time {
+    margin-left: auto;
+    font-size: 0.65625rem; /* 10.5px */
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+  
+  /* ═══ TOP CATEGORÍAS ═══ */
+  .top-cats {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem; /* 12px */
+  }
+  
+  .top-cats li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem; /* 6px */
+  }
+  
+  .top-cats .tc-row {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem; /* 10px */
+    font-size: 0.78125rem; /* 12.5px */
+    font-weight: 500;
+  }
+  
+  .top-cats .tc-row .n {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .top-cats .tc-row .v {
+    color: var(--text-2);
+    font-size: 0.71875rem; /* 11.5px */
+    font-weight: 600;
+  }
+  
+  .progress {
+    height: 0.3125rem; /* 5px */
+    border-radius: 6rem; /* 99px */
+    background: var(--hover);
+    overflow: hidden;
+  }
+  
+  .progress i {
+    display: block;
+    height: 100%;
+    border-radius: 6rem;
+    background: linear-gradient(90deg, var(--acc), var(--acc-strong));
+    box-shadow: 0 0 0.5rem var(--glow); /* 8px */
+  }
+  
+  /* ═══ RESPONSIVE DASHBOARD ═══ */
+  @media (max-width: 1100px) {
+    .dc-3 { grid-column: span 6; }
+    .dc-8 { grid-column: span 12; }
+  }
+  
+  @media (max-width: 640px) {
+    .dash-grid { gap: 0.6875rem; /* 11px */ }
+    .dc-3, .dc-4, .dc-8, .dc-12 { grid-column: span 12; }
+    .dash-card { padding: 0.875rem 1rem; /* 14px 16px */ }
+  }

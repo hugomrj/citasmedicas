@@ -16,6 +16,7 @@ end
 admin = UsuarioService.crear(
   nombre:   NOMBRE,
   apellido: APELLIDO,
+  username: 'admin', 
   email:    EMAIL,
   password: PASSWORD,
   rol:      'admin'

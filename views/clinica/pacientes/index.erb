@@ -1,0 +1,98 @@
+<div class="page-head">
+  <div>
+    <h1>Pacientes</h1>
+    <p>Administra los datos de los pacientes del consultorio.</p>
+  </div>
+  <a href="/pacientes/nuevo" class="btn btn-primary">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <span>Nuevo Paciente</span>
+  </a>
+</div>
+
+<div class="filters glass">
+  <div class="f-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" placeholder="Buscar en pacientes..." id="inpBuscar" value="<%= @query_actual %>">
+    <kbd>/</kbd>
+  </div>
+  
+  <!-- Botón de limpiar filtros pegado al buscador -->
+  <button class="btn btn-ghost btn-sm" id="btnClear" type="button" style="margin-left: 10px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    Limpiar
+  </button>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <h2>Listado de Pacientes</h2>
+      
+      <!-- Pestañas con contadores -->
+      <div class="tabs" id="listTabs">
+        <button class="tab <%= @status_actual == 'todos' ? 'on' : '' %>" data-status="todos">Todos <span class="t-count" id="tcTodos"><%= @contador_todos %></span></button>
+        <button class="tab <%= @status_actual == 'activos' ? 'on' : '' %>" data-status="activos">Activos <span class="t-count" id="tcActivos"><%= @contador_activos %></span></button>
+        <button class="tab <%= @status_actual == 'inactivos' ? 'on' : '' %>" data-status="inactivos">Inactivos <span class="t-count" id="tcInactivos"><%= @contador_inactivos %></span></button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Contenedor que se actualizará por JS -->
+  <div id="contenedorTabla">
+    <%= erb :'clinica/pacientes/_tabla', layout: false %>
+  </div>
+</div>
+
+<script>
+  const inputBuscar = document.getElementById('inpBuscar');
+  const contenedorTabla = document.getElementById('contenedorTabla');
+  const tabs = document.querySelectorAll('.tab');
+  const btnClear = document.getElementById('btnClear');
+  
+  let currentStatus = '<%= @status_actual %>';
+  let timeoutId = null;
+
+  async function fetchTabla() {
+    const q = inputBuscar.value.trim();
+    const url = `/pacientes?q=${encodeURIComponent(q)}&status=${currentStatus}`;
+    
+    try {
+      const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      const html = await res.text();
+      contenedorTabla.innerHTML = html;
+    } catch(err) {
+      console.error('Error al buscar:', err);
+    }
+  }
+
+  inputBuscar.addEventListener('input', () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(fetchTabla, 300);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
+      e.preventDefault();
+      inputBuscar.focus();
+    }
+  });
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      tabs.forEach(t => t.classList.remove('on'));
+      e.target.closest('.tab').classList.add('on');
+      currentStatus = e.target.closest('.tab').dataset.status;
+      fetchTabla();
+    });
+  });
+
+  btnClear.addEventListener('click', () => {
+    inputBuscar.value = '';
+    currentStatus = 'todos';
+    
+    tabs.forEach(t => t.classList.remove('on'));
+    document.querySelector('.tab[data-status="todos"]').classList.add('on');
+    
+    fetchTabla();
+  });
+</script>

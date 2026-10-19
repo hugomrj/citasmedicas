@@ -7,7 +7,7 @@ class Paciente < Sequel::Model(:pacientes)
     super
     validates_presence [:nombre, :apellido, :telefono]
     validates_unique :telefono
-    validates_unique :dni, allow_nil: true
+    validates_unique :cedula, allow_nil: true
     validates_includes CANALES, :canal_registro, message: 'no es un canal válido'
   end
 

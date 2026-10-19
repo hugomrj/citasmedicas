@@ -1,23 +1,27 @@
-module AuthUsuarioRoutes
+  module AuthUsuarioRoutes
   def self.registered(app)
+    
     app.get '/login' do
       redirect '/dashboard' if autenticado?
-      erb :'auth/usuario/login'          # ← sin layout
+      @crumb_here = 'Iniciar sesión'
+      erb :'auth/usuario/login' # ← sin layout, página independiente
     end
 
     app.post '/login' do
+      content_type :json
+      
       usuario = UsuarioService.autenticar(
-        email:    params[:email],
+        username: params[:username],
         password: params[:password]
       )
-
+    
       if usuario
         iniciar_sesion!(usuario)
-        flash[:success] = "Bienvenido, #{usuario.nombre_completo}"
-        redirect '/dashboard'
+        # ACÁ ESTÁ LA CLAVE: devolvemos el "redirect" con la URL
+        { ok: true, redirect: '/dashboard' }.to_json
       else
-        flash[:error] = 'Email o contraseña incorrectos'
-        redirect '/login'
+        status 401
+        { ok: false, message: 'Usuario o contraseña incorrectos' }.to_json
       end
     end
 

@@ -1,0 +1,177 @@
+/* ═══════════════════════════════════════════════
+   01-THEME.CSS
+   Variables, reset, scrollbar, glass y animaciones
+   ═══════════════════════════════════════════════ */
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Variables base y de tema */
+  :root {
+    --h: 160;
+    --s: 84%;
+    --acc-strong: hsl(var(--h) var(--s) 30%);
+    --glow: hsl(var(--h) var(--s) 30% / 0.38);
+  }
+  
+  html[data-theme="dark"] {
+    --bg: hsl(var(--h) 22% 5.8%);
+    --panel: hsl(var(--h) 20% 9%);
+    --panel-2: hsl(var(--h) 20% 12%);
+    --text: hsl(var(--h) 15% 95%);
+    --text-2: hsl(var(--h) 10% 62%);
+    --side-ic: hsl(var(--h) 24% 74%);
+    --side-ic-hov: hsl(var(--h) 15% 95%);
+    --hover: hsl(var(--h) 25% 30% / 0.14);
+    --brd: hsl(0 0% 100% / 0.08);
+    --brd-2: hsl(0 0% 100% / 0.15);
+    --th-bg: hsl(0 0% 100% / 0.035);
+    --field: hsl(0 0% 100% / 0.05);
+    --ov-bg: hsl(var(--h) 30% 3% / 0.6);
+  
+    --acc: hsl(var(--h) calc(var(--s) - 6%) 60%);
+    --acc-txt: hsl(var(--h) calc(var(--s) - 8%) 75%);
+    --acc-soft: hsl(var(--h) calc(var(--s) - 6%) 58% / 0.16);
+    --ring: hsl(var(--h) calc(var(--s) - 6%) 58% / 0.32);
+  
+    --ok: hsl(152 58% 52%);
+    --ok-bg: hsl(152 58% 45% / 0.15);
+    --warn: hsl(38 85% 60%);
+    --warn-bg: hsl(38 85% 50% / 0.15);
+    --danger: hsl(354 66% 62%);
+    --danger-bg: hsl(354 66% 55% / 0.14);
+  
+    /* Sombras en px (se mantienen en px para nitidez) */
+    --shadow: 0 10px 30px hsl(var(--h) 40% 2% / 0.45), 0 0 24px hsl(var(--h) var(--s) 50% / 0.04);
+    color-scheme: dark;
+  }
+  
+  html[data-theme="light"] {
+    --bg: hsl(var(--h) 26% 97%);
+    --panel: #ffffff;
+    --panel-2: #ffffff;
+    --text: hsl(var(--h) 25% 13%);
+    --text-2: hsl(var(--h) 10% 42%);
+    --side-ic: hsl(var(--h) 22% 38%);
+    --side-ic-hov: hsl(var(--h) 25% 13%);
+    --hover: hsl(var(--h) 40% 40% / 0.07);
+    --brd: hsl(var(--h) 25% 15% / 0.1);
+    --brd-2: hsl(var(--h) 25% 15% / 0.18);
+    --th-bg: hsl(var(--h) 25% 10% / 0.035);
+    --field: hsl(0 0% 100% / 0.7);
+    --ov-bg: hsl(var(--h) 25% 12% / 0.4);
+  
+    --acc: hsl(var(--h) var(--s) 38%);
+    --acc-txt: hsl(var(--h) var(--s) 28%);
+    --acc-soft: hsl(var(--h) var(--s) 45% / 0.12);
+    --ring: hsl(var(--h) var(--s) 45% / 0.22);
+  
+    --ok: hsl(152 62% 33%);
+    --ok-bg: hsl(152 60% 40% / 0.12);
+    --warn: hsl(30 90% 36%);
+    --warn-bg: hsl(38 90% 45% / 0.13);
+    --danger: hsl(354 72% 43%);
+    --danger-bg: hsl(354 70% 50% / 0.1);
+  
+    --shadow: 0 6px 22px hsl(var(--h) 45% 40% / 0.09), 0 0 20px hsl(var(--h) var(--s) 50% / 0.06);
+    color-scheme: light;
+  }
+  
+  /* Textura de ruido en modo oscuro */
+  html[data-theme="dark"]::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+  
+  /* Base del cuerpo */
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.55;
+    transition: background 0.3s, color 0.3s;
+  }
+  
+  /* Accesibilidad: Focus visible */
+  :focus-visible {
+    outline: 2px solid var(--acc);
+    outline-offset: 2px;
+    border-radius: 0.5rem; /* 8px */
+  }
+  
+  /* Scrollbar fantasma */
+  ::-webkit-scrollbar {
+    width: 0.375rem; /* 6px */
+    height: 0.375rem;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 99px;
+    transition: background 0.25s ease;
+  }
+  *:hover::-webkit-scrollbar-thumb {
+    background: hsl(0 0% 50% / 0.25);
+  }
+  html[data-theme="dark"] *:hover::-webkit-scrollbar-thumb {
+    background: hsl(0 0% 100% / 0.15);
+  }
+  
+  /* Efectos Glass */
+  .glass {
+    background: var(--panel);
+    border: 1px solid var(--brd);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(0.75rem); /* 12px */
+    -webkit-backdrop-filter: blur(0.75rem);
+  }
+  
+  .glass-deep {
+    background: var(--panel-2);
+    border: 1px solid var(--brd-2);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(1rem); /* 16px */
+    -webkit-backdrop-filter: blur(1rem);
+  }
+  
+  /* Animaciones globales */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(0.75rem) scale(0.99); } /* 12px */
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-0.375rem); } /* 6px */
+  }
+  
+  @keyframes skel {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+  
+  @keyframes tIn {
+    from { opacity: 0; transform: translateX(4.375rem) scale(0.96); } /* 70px */
+    to { opacity: 1; transform: none; }
+  }
+  
+  @keyframes tOut {
+    to { opacity: 0; transform: translateX(4.375rem); } /* 70px */
+  }
+  
+  @keyframes bar {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+  }

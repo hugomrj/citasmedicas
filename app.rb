@@ -15,6 +15,8 @@ module CitasMedicas
     set :views, File.join(root, 'views')
     set :public_folder, File.join(root, 'public')
 
+    set :method_override, true
+
     set :sessions, true
     set :session_secret, ENV.fetch(
       'SESSION_SECRET',

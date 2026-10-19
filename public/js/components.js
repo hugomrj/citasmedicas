@@ -1,6 +1,7 @@
 /* ═══ SELECT CUSTOM ═══ */
 function initFsel(id,onChange){
   const fsel=document.getElementById(id);
+  if(!fsel) return;
   const btn=fsel.querySelector('.fsel-btn');
   const lbl=btn.querySelector('.fsel-lbl');
   
@@ -35,6 +36,7 @@ const tipEl=document.getElementById('tooltip');
 let tipTimer=null,tipCur=null;
 
 function hideTip(){
+  if(!tipEl) return;
   clearTimeout(tipTimer);
   tipTimer=null;
   tipEl.classList.remove('show','below');
@@ -42,6 +44,7 @@ function hideTip(){
 }
 
 document.addEventListener('mouseover',e=>{
+  if(!tipEl) return;
   const t=e.target.closest('[data-tip]');
   if(!t||t===tipCur)return;
   clearTimeout(tipTimer);
@@ -71,57 +74,55 @@ const icons={
 };
 
 function toast(type,title,msg){
+  const container = document.getElementById('toasts');
+  if(!container) return; // Si no hay contenedor de toasts, no hace nada.
+
   const t=document.createElement('div');
   t.className='toast glass-deep '+type;
-  t.innerHTML=`<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${icons[type]}</svg></span>
+  t.innerHTML=`<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${icons[type] || icons.info}</svg></span>
     <div><b>${title}</b><p>${msg}</p></div><button class="x">✕</button><span class="bar"></span>`;
-  document.getElementById('toasts').appendChild(t);
+  container.appendChild(t);
   const kill=()=>{t.classList.add('out');setTimeout(()=>t.remove(),220)};
   t.querySelector('.x').onclick=kill;
   setTimeout(kill,4000);
 }
 
 /* ══ MODALES ═══ */
-function closeOv(ov){ov.classList.remove('show')}
+function closeOv(ov){
+  if(ov) ov.classList.remove('show');
+}
 
 /* ═══ MENÚ DE USUARIO ══ */
 const avatarBtn=document.getElementById('avatarBtn'),
       userMenu=document.getElementById('userMenu');
 
-avatarBtn.addEventListener('click',e=>{
-  e.stopPropagation();
-  const notifMenu=document.getElementById('notifMenu');
-  const btnNotif=document.getElementById('btnNotif');
-  notifMenu.classList.remove('open');
-  btnNotif.classList.remove('active');
-  const open=userMenu.classList.toggle('open');
-  avatarBtn.classList.toggle('active',open);
-});
-
-document.querySelectorAll('.u-item').forEach(item=>item.addEventListener('click',()=>{
-  userMenu.classList.remove('open');
-  avatarBtn.classList.remove('active');
-  const a=item.dataset.action;
-  if(a==='logout')toast('warn','Sesión cerrada','En el sistema real aquí se destruye la sesión.');
-  else if(a==='notificaciones'){
+if(avatarBtn && userMenu) {
+  avatarBtn.addEventListener('click',e=>{
+    e.stopPropagation();
     const notifMenu=document.getElementById('notifMenu');
     const btnNotif=document.getElementById('btnNotif');
-    notifMenu.classList.add('open');
-    btnNotif.classList.add('active');
-  }
-  else toast('info',item.textContent.trim(),'Vista del prototipo pendiente.');
-}));
+    if(notifMenu) notifMenu.classList.remove('open');
+    if(btnNotif) btnNotif.classList.remove('active');
+    const open=userMenu.classList.toggle('open');
+    avatarBtn.classList.toggle('active',open);
+  });
+
+  document.querySelectorAll('.u-item').forEach(item=>item.addEventListener('click',()=>{
+    userMenu.classList.remove('open');
+    avatarBtn.classList.remove('active');
+    const a=item.dataset.action;
+    if(a==='logout') toast('warn','Sesión cerrada','En el sistema real aquí se destruye la sesión.');
+    else if(a==='notificaciones'){
+      const notifMenu=document.getElementById('notifMenu');
+      const btnNotif=document.getElementById('btnNotif');
+      if(notifMenu) notifMenu.classList.add('open');
+      if(btnNotif) btnNotif.classList.add('active');
+    }
+    else toast('info',item.textContent.trim(),'Vista del prototipo pendiente.');
+  }));
+}
 
 /* ═══ MENÚ DE NOTIFICACIONES ═══ */
-let notifs=[
-  {title:'Backup completado',   msg:'El respaldo nocturno terminó sin errores.',            time:'hace 12 min', unread:true},
-  {title:'Stock bajo',          msg:'3 productos de Bebidas están por agotarse.',           time:'hace 1 h',    unread:true},
-  {title:'Nuevo usuario',       msg:'Carla Méndez se registró en el sistema.',              time:'hace 3 h',    unread:true},
-  {title:'Factura emitida',     msg:'La factura #0248 se generó correctamente.',            time:'ayer',        unread:false},
-];
-
-const unreadCount=()=>notifs.filter(n=>n.unread).length;
-
 const btnNotif=document.getElementById('btnNotif'),
       notifMenu=document.getElementById('notifMenu'),
       notifList=document.getElementById('notifList'),
@@ -130,51 +131,69 @@ const btnNotif=document.getElementById('btnNotif'),
       btnMarkAll=document.getElementById('btnMarkAll'),
       userBadge=document.getElementById('userBadge');
 
-function syncNotifUI(){
-  const u=unreadCount();
-  notifPing.style.display=u?'block':'none';
-  userBadge.textContent=u;
-  userBadge.classList.toggle('hide',!u);
-  btnMarkAll.style.display=u?'inline-block':'none';
-  notifEmpty.classList.toggle('show',notifs.length===0);
-  notifList.style.display=notifs.length?'block':'none';
-  notifList.innerHTML=notifs.map((n,i)=>`
-    <li class="n-item ${n.unread?'unread':'read'}" data-n="${i}">
-      <span class="n-dot"></span>
-      <div class="n-body"><b>${n.title}</b><p>${n.msg}</p><time>${n.time}</time></div>
-    </li>`).join('');
+// Solo ejecutamos la lógica de notificaciones si estamos en el dashboard
+if(btnNotif && notifMenu && notifList) {
+  let notifs=[
+    {title:'Backup completado',   msg:'El respaldo nocturno terminó sin errores.',            time:'hace 12 min', unread:true},
+    {title:'Stock bajo',          msg:'3 productos de Bebidas están por agotarse.',           time:'hace 1 h',    unread:true},
+    {title:'Nuevo usuario',       msg:'Carla Méndez se registró en el sistema.',              time:'hace 3 h',    unread:true},
+    {title:'Factura emitida',     msg:'La factura #0248 se generó correctamente.',            time:'ayer',        unread:false},
+  ];
+
+  const unreadCount=()=>notifs.filter(n=>n.unread).length;
+
+  function syncNotifUI(){
+    const u=unreadCount();
+    if(notifPing) notifPing.style.display=u?'block':'none';
+    if(userBadge) {
+      userBadge.textContent=u;
+      userBadge.classList.toggle('hide',!u);
+    }
+    if(btnMarkAll) btnMarkAll.style.display=u?'inline-block':'none';
+    if(notifEmpty) notifEmpty.classList.toggle('show',notifs.length===0);
+    if(notifList) {
+      notifList.style.display=notifs.length?'block':'none';
+      notifList.innerHTML=notifs.map((n,i)=>`
+        <li class="n-item ${n.unread?'unread':'read'}" data-n="${i}">
+          <span class="n-dot"></span>
+          <div class="n-body"><b>${n.title}</b><p>${n.msg}</p><time>${n.time}</time></div>
+        </li>`).join('');
+    }
+  }
+
+  syncNotifUI();
+
+  btnNotif.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(userMenu) userMenu.classList.remove('open');
+    if(avatarBtn) avatarBtn.classList.remove('active');
+    notifMenu.classList.toggle('open');
+    btnNotif.classList.toggle('active',notifMenu.classList.contains('open'));
+  });
+
+  notifList.addEventListener('click',e=>{
+    const li=e.target.closest('[data-n]');
+    if(!li)return;
+    notifs[+li.dataset.n].unread=false;
+    syncNotifUI();
+  });
+
+  if(btnMarkAll) {
+    btnMarkAll.addEventListener('click',()=>{
+      notifs.forEach(n=>n.unread=false);
+      syncNotifUI();
+      toast('ok','Notificaciones','Todas fueron marcadas como leídas.');
+    });
+  }
 }
-
-syncNotifUI();
-
-btnNotif.addEventListener('click',e=>{
-  e.stopPropagation();
-  userMenu.classList.remove('open');
-  avatarBtn.classList.remove('active');
-  notifMenu.classList.toggle('open');
-  btnNotif.classList.toggle('active',notifMenu.classList.contains('open'));
-});
-
-notifList.addEventListener('click',e=>{
-  const li=e.target.closest('[data-n]');
-  if(!li)return;
-  notifs[+li.dataset.n].unread=false;
-  syncNotifUI();
-});
-
-btnMarkAll.addEventListener('click',()=>{
-  notifs.forEach(n=>n.unread=false);
-  syncNotifUI();
-  toast('ok','Notificaciones','Todas fueron marcadas como leídas.');
-});
 
 /* Cerrar menús al hacer clic fuera */
 document.addEventListener('click',e=>{
-  if(!e.target.closest('.user-wrap')){
+  if(userMenu && avatarBtn && !e.target.closest('.user-wrap')){
     userMenu.classList.remove('open');
     avatarBtn.classList.remove('active')
   }
-  if(!e.target.closest('.notif-wrap')){
+  if(notifMenu && btnNotif && !e.target.closest('.notif-wrap')){
     notifMenu.classList.remove('open');
     btnNotif.classList.remove('active')
   }

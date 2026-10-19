@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CitasMédicas — Iniciar sesión</title>
+<title>CitasMédicas — Acceder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+<!-- Anti-FOUC -->
 <script>
 (function(){
   function relLum(h,s,l){
@@ -34,80 +35,184 @@
 </script>
 
 <link rel="stylesheet" href="/css/01-theme.css">
-<link rel="stylesheet" href="/css/02-layout.css">
 <link rel="stylesheet" href="/css/03-components.css">
 <link rel="stylesheet" href="/css/05-login.css">
 </head>
-<body class="login-body">
+<body>
 
-<div class="login-theme-toggle">
-  <button class="icon-btn" id="btnTheme" data-tip="Cambiar tema" type="button">
+<div class="top-actions">
+  <button class="icon-btn" id="btnTheme" aria-label="Cambiar tema">
     <svg id="icoSun" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
     <svg id="icoMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
   </button>
 </div>
 
-<main class="login-wrap">
-  <div class="login-box glass-deep">
+<div class="auth-scene">
+  <main class="auth-stack">
+    <div class="auth-card glass" id="authCard">
 
-    <div class="login-brand">
-      <div class="login-mark">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2v20M2 12h20"/>
-          <circle cx="12" cy="12" r="9"/>
-        </svg>
+      <div class="auth-brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M2 12h20"/>
+            <circle cx="12" cy="12" r="9"/>
+          </svg>
+        </div>
+        <div class="auth-brand-txt">
+          <b>CitasMédicas</b>
+          <small>SISTEMA DE CLÍNICA</small>
+        </div>
       </div>
-      <h1>CitasMédicas</h1>
-      <p>Sistema de gestión de citas</p>
+
+      <!-- Formulario SIN HTMX -->
+      <form id="loginForm" novalidate>
+        
+        <div class="field">
+          <label for="username">Usuario</label>
+          <div class="input-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input class="input" type="text" id="username" name="username" placeholder="Ej. admin"
+                   autocomplete="username" spellcheck="false" required autofocus>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Contraseña</label>
+          <div class="input-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input class="input has-eye" type="password" id="password" name="password" placeholder="••••••••"
+                   autocomplete="current-password" required>
+            <button type="button" class="eye" id="btnEye" aria-label="Mostrar u ocultar contraseña">
+              <svg id="eyeOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg id="eyeOff" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c6.5 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3.5 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="btnLogin">
+          <span id="btnLabel">Iniciar sesión</span>
+          <svg id="btnArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          <span class="spinner" id="btnSpin" style="display:none"></span>
+        </button>
+      </form>
+
     </div>
-
-    <form method="post" action="/login" class="login-form">
-      <div class="field">
-        <label for="email">Email</label>
-        <input class="input" type="email" id="email" name="email" placeholder="tu@correo.com" required autofocus autocomplete="email">
-      </div>
-
-      <div class="field">
-        <label for="password">Contraseña</label>
-        <input class="input" type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
-      </div>
-
-      <button class="btn btn-primary login-submit" type="submit">
-        Entrar
-      </button>
-    </form>
-
-    <div class="login-hints">
-      <div class="login-hint-row"><span>Admin</span><code>admin@citasmedicas.local</code></div>
-      <div class="login-hint-row"><span>Recepción</span><code>recepcion@citasmedicas.local</code></div>
-    </div>
-  </div>
-</main>
+  </main>
+</div>
 
 <div class="toasts" id="toasts"></div>
 
-<script src="/js/theme.js"></script>
-
-<% unless flash.empty? %>
 <script>
-  (function(){
-    var msgs = <%= flash.pendientes.to_json %>;
-    Object.keys(msgs).forEach(function(k){
-      var map = {success:'ok', error:'err', warning:'warn', info:'info'};
-      var tipo = map[k] || 'info';
-      var titulo = {ok:'Éxito', err:'Error', warn:'Atención', info:'Info'}[tipo];
-      setTimeout(function(){
-        var c = document.getElementById('toasts');
-        if (!c) return;
-        var el = document.createElement('div');
-        el.className = 'toast glass-deep ' + tipo;
-        el.innerHTML = '<div><b>' + titulo + '</b><p>' + msgs[k] + '</p></div>';
-        c.appendChild(el);
-        setTimeout(function(){ el.remove(); }, 4000);
-      }, 150);
+/* ═══ TEMA ═══ */
+const root=document.documentElement,PREFS_KEY='ui-prefs-v2';
+function persist(){try{
+  const h=parseFloat(getComputedStyle(root).getPropertyValue('--h'))||160,
+        s=parseFloat(getComputedStyle(root).getPropertyValue('--s'))||84;
+  localStorage.setItem(PREFS_KEY,JSON.stringify({theme:root.dataset.theme,h,s}))
+}catch(e){}}
+const icoSun=document.getElementById('icoSun'),icoMoon=document.getElementById('icoMoon');
+function syncThemeIcons(){const l=root.dataset.theme==='light';
+  icoSun.style.display=l?'block':'none';icoMoon.style.display=l?'none':'block'}
+syncThemeIcons();
+document.getElementById('btnTheme').onclick=()=>{
+  root.dataset.theme=root.dataset.theme==='dark'?'light':'dark';
+  syncThemeIcons();persist();
+};
+
+/* ═══ MOSTRAR/OCULTAR CONTRASEÑA ═══ */
+const pwd=document.getElementById('password'),
+      btnEye=document.getElementById('btnEye'),
+      eyeOn=document.getElementById('eyeOn'),
+      eyeOff=document.getElementById('eyeOff');
+btnEye.onclick=()=>{
+  const show=pwd.type==='password';
+  pwd.type=show?'text':'password';
+  eyeOn.style.display=show?'none':'block';
+  eyeOff.style.display=show?'block':'none';
+  pwd.focus();
+};
+
+/* ═══ SISTEMA DE TOASTS ═══ */
+const localIcons = {
+  ok:'<circle cx="12" cy="12" r="10"/><path d="m8.5 12.5 2.5 2.5 5-6"/>',
+  err:'<circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>',
+  warn:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>'
+};
+
+function toast(type, title, msg){
+  const container = document.getElementById('toasts');
+  if(!container) return;
+  const t = document.createElement('div');
+  t.className = 'toast glass-deep ' + type;
+  t.innerHTML = `<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${localIcons[type] || localIcons.info}</svg></span>
+    <div><b>${title}</b><p>${msg}</p></div><button class="x">✕</button><span class="bar"></span>`;
+  container.appendChild(t);
+  const kill = () => { t.classList.add('out'); setTimeout(() => t.remove(), 220); };
+  t.querySelector('.x').onclick = kill;
+  setTimeout(kill, 4000);
+}
+
+/* ═══ LÓGICA DE LOGIN CON FETCH (JS Vanilla) ═══ */
+const form = document.getElementById('loginForm'),
+      btn = document.getElementById('btnLogin'),
+      btnLabel = document.getElementById('btnLabel'),
+      btnArrow = document.getElementById('btnArrow'),
+      btnSpin = document.getElementById('btnSpin');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault(); // Evita que la página recargue
+  
+  // Validación HTML5 nativa
+  if(!form.checkValidity()){
+    const authCard = document.getElementById('authCard');
+    authCard.classList.add('shakeLogin');
+    setTimeout(()=>authCard.classList.remove('shakeLogin'), 500);
+    toast('warn', 'Atención', 'Por favor, completá todos los campos.');
+    return;
+  }
+  
+  // Mostrar spinner y bloquear botón
+  btn.disabled = true;
+  btnLabel.textContent = 'Accediendo…';
+  btnArrow.style.display = 'none';
+  btnSpin.style.display = 'inline-block';
+
+  const formData = new FormData(form);
+  
+  try {
+    const res = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' }, // Le decimos a Sinatra que queremos JSON
+      body: formData
     });
-  })();
+    
+    const data = await res.json();
+    
+    if (res.ok && data.ok) {
+      // Éxito: redirigir al dashboard
+      window.location.href = data.redirect;
+    } else {
+      // Error: mostrar toast y restaurar botón
+      toast('err', 'Error de acceso', data.message);
+      btn.disabled = false;
+      btnLabel.textContent = 'Iniciar sesión';
+      btnArrow.style.display = 'block';
+      btnSpin.style.display = 'none';
+    }
+  } catch(err) {
+    toast('err', 'Error de conexión', 'No se pudo conectar con el servidor.');
+    btn.disabled = false;
+    btnLabel.textContent = 'Iniciar sesión';
+    btnArrow.style.display = 'block';
+    btnSpin.style.display = 'none';
+  }
+});
+
+// Enfocar el input correcto al cargar
+const usernameInput = document.getElementById('username');
+if(usernameInput.value) pwd.focus(); else usernameInput.focus();
 </script>
-<% end %>
+
 </body>
 </html>

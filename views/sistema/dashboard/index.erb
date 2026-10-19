@@ -1,118 +1,66 @@
 <div class="page-head">
   <div>
-    <h1>Dashboard</h1>
-    <p>Resumen general de la clínica. Datos en vivo.</p>
+    <h1>Dashboard Estático</h1>
+    <p>Si ves esto con tarjetas y colores, el CSS funciona perfecto.</p>
   </div>
+  <button class="btn btn-primary">
+    <span>Botón de prueba</span>
+  </button>
 </div>
 
 <div class="dash-grid">
   <div class="dash-card glass dc-3 metric">
-    <div class="ic">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-    </div>
     <span class="lbl">Citas hoy</span>
-    <strong class="val"><%= @citas_hoy.size %></strong>
+    <strong class="val">5</strong>
+    <div class="metric-foot"><span class="delta up">↗ +2</span></div>
   </div>
 
   <div class="dash-card glass dc-3 metric">
-    <div class="ic">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-    </div>
-    <span class="lbl">Pacientes activos</span>
-    <strong class="val"><%= @pacientes_count %></strong>
+    <span class="lbl">Pacientes</span>
+    <strong class="val">10</strong>
   </div>
 
   <div class="dash-card glass dc-3 metric">
-    <div class="ic">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 21h20M6 21V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v14"/></svg>
-    </div>
-    <span class="lbl">Médicos activos</span>
-    <strong class="val"><%= @medicos_count %></strong>
+    <span class="lbl">Médicos</span>
+    <strong class="val">2</strong>
   </div>
 
   <div class="dash-card glass dc-3 metric">
-    <div class="ic">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-    </div>
-    <span class="lbl">Avisos pendientes</span>
-    <strong class="val"><%= @avisos_count %></strong>
+    <span class="lbl">Avisos</span>
+    <strong class="val">0</strong>
   </div>
 </div>
 
 <div class="dash-grid">
-  <div class="dash-card glass dc-8">
+  <div class="dash-card glass dc-12">
     <div class="chart-head">
-      <div>
-        <h3>Citas de hoy</h3>
-        <span class="hint">Agenda del día, ordenada por hora.</span>
-      </div>
+      <h3>Tabla de prueba estática</h3>
     </div>
-
-    <% if @citas_hoy.empty? %>
-      <p style="color:var(--text-dim);padding:1rem 0">No hay citas agendadas para hoy.</p>
-    <% else %>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Hora</th>
-              <th>Paciente</th>
-              <th>Médico</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @citas_hoy.each do |c| %>
-              <tr>
-                <td><b><%= c.fecha_hora.strftime('%H:%M') %></b></td>
-                <td><%= c.paciente.nombre_completo %></td>
-                <td><%= c.medico.nombre_completo %></td>
-                <td><span class="status <%= c.estado == 'cancelada' ? 'off' : 'ok' %>"><%= c.estado %></span></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="dash-card glass dc-4">
-    <div class="chart-head">
-      <h3>Próximas citas</h3>
-      <span class="hint">Siguientes 10</span>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Paciente</th>
+            <th>Médico</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>09:00</b></td>
+            <td>María López</td>
+            <td>Ana Gómez</td>
+            <td><span class="status ok">Pendiente</span></td>
+          </tr>
+          <tr>
+            <td><b>10:00</b></td>
+            <td>Juan Martínez</td>
+            <td>Carlos Pérez</td>
+            <td><span class="status off">Cancelada</span></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <% if @citas_proximas.empty? %>
-      <p style="color:var(--text-dim);padding:1rem 0">No hay próximas citas.</p>
-    <% else %>
-      <ul class="acts">
-        <% @citas_proximas.each do |c| %>
-          <li>
-            <span class="dot"></span>
-            <span class="txt wrap">
-              <b><%= c.paciente.nombre_completo %></b><br>
-              <%= c.medico.nombre_completo %>
-            </span>
-            <time><%= c.fecha_hora.strftime('%a %d/%m %H:%M') %></time>
-          </li>
-        <% end %>
-      </ul>
-    <% end %>
   </div>
 </div>
-
-<% if @avisos.any? %>
-  <div class="dash-grid">
-    <div class="dash-card glass dc-12">
-      <div class="chart-head">
-        <h3>Avisos recientes</h3>
-        <span class="hint"><a href="/avisos">Ver todos →</a></span>
-      </div>
-      <% @avisos.each do |a| %>
-        <div class="alert alert-<%= a.severidad == 'error' ? 'error' : (a.severidad == 'warning' ? 'warning' : 'info') %>">
-          <strong><%= a.titulo %></strong><br>
-          <small><%= a.detalle %></small>
-        </div>
-      <% end %>
-    </div>
-  </div>
-<% end %>

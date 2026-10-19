@@ -9,7 +9,8 @@ admin = Usuario.where(rol: 'admin').first
 if admin.nil?
   admin = UsuarioService.crear(
     nombre: 'Admin', apellido: 'Sistema',
-    email: 'admin@citasmedicas.local', password: 'admin123', rol: 'admin'
+    username: 'admin', email: 'admin@citasmedicas.local', 
+    password: 'admin123', rol: 'admin'
   )
   puts "✓ Admin creado (id: #{admin.id})"
 else
@@ -17,14 +18,19 @@ else
 end
 
 # ---------- Usuarios de médicos y recepción ----------
-def crear_usuario_si_no_existe(email:, nombre:, apellido:, rol:, password: 'demo123')
-  u = Usuario.where(email: email).first
+def crear_usuario_si_no_existe(username:, email:, nombre:, apellido:, rol:, password: 'demo123')
+  u = Usuario.where(username: username).first
   return [u, false] if u
-  [UsuarioService.crear(nombre: nombre, apellido: apellido, email: email,
-                        password: password, rol: rol), true]
+  
+  [UsuarioService.crear(
+    nombre: nombre, apellido: apellido, 
+    username: username, email: email,
+    password: password, rol: rol
+  ), true]
 end
 
 recepcion, creado = crear_usuario_si_no_existe(
+  username: 'recepcion',
   email: 'recepcion@citasmedicas.local',
   nombre: 'Lucía', apellido: 'Recepción', rol: 'recepcion'
 )
@@ -70,7 +76,6 @@ def cargar_molde(medico, dias:, bloques:)
   end
 end
 
-# Médico 1: lunes a viernes, mañana y tarde, turnos de 30 min
 cargar_molde(
   medico1,
   dias: [1, 2, 3, 4, 5],
@@ -82,7 +87,6 @@ cargar_molde(
 puts "✓ Disponibilidad de #{medico1.nombre_completo} cargada" \
   if Disponibilidad.where(medico_id: medico1.id).count > 0
 
-# Médico 2: lunes a viernes, solo mañana, turnos de 20 min
 cargar_molde(
   medico2,
   dias: [1, 2, 3, 4, 5],
@@ -93,29 +97,28 @@ puts "✓ Disponibilidad de #{medico2.nombre_completo} cargada" \
 
 # ---------- Pacientes ----------
 pacientes_data = [
-  { nombre: 'María',   apellido: 'López',    telefono: '555-2001', dni: '11111111' },
-  { nombre: 'Juan',    apellido: 'Martínez', telefono: '555-2002', dni: '22222222' },
-  { nombre: 'Sofía',   apellido: 'Hernández',telefono: '555-2003', dni: '33333333' },
-  { nombre: 'Diego',   apellido: 'Ramírez',  telefono: '555-2004', dni: '44444444' },
-  { nombre: 'Valeria', apellido: 'Torres',   telefono: '555-2005', dni: '55555555' },
-  { nombre: 'Andrés',  apellido: 'Flores',   telefono: '555-2006', dni: '66666666' },
-  { nombre: 'Camila',  apellido: 'Ruiz',     telefono: '555-2007', dni: '77777777' },
-  { nombre: 'Luis',    apellido: 'Mendoza',  telefono: '555-2008', dni: '88888888' },
-  { nombre: 'Daniela', apellido: 'Soto',     telefono: '555-2009', dni: '99999999' },
-  { nombre: 'Pablo',   apellido: 'Castro',   telefono: '555-2010', dni: '10101010' }
+  { nombre: 'María',   apellido: 'López',    telefono: '555-2001', cedula: '11111111' },
+  { nombre: 'Juan',    apellido: 'Martínez', telefono: '555-2002', cedula: '22222222' },
+  { nombre: 'Sofía',   apellido: 'Hernández',telefono: '555-2003', cedula: '33333333' },
+  { nombre: 'Diego',   apellido: 'Ramírez',  telefono: '555-2004', cedula: '44444444' },
+  { nombre: 'Valeria', apellido: 'Torres',   telefono: '555-2005', cedula: '55555555' },
+  { nombre: 'Andrés',  apellido: 'Flores',   telefono: '555-2006', cedula: '66666666' },
+  { nombre: 'Camila',  apellido: 'Ruiz',     telefono: '555-2007', cedula: '77777777' },
+  { nombre: 'Luis',    apellido: 'Mendoza',  telefono: '555-2008', cedula: '88888888' },
+  { nombre: 'Daniela', apellido: 'Soto',     telefono: '555-2009', cedula: '99999999' },
+  { nombre: 'Pablo',   apellido: 'Castro',   telefono: '555-2010', cedula: '10101010' }
 ]
 
 pacientes = pacientes_data.map do |p|
   pac, creado = PacienteService.buscar_o_crear(
     telefono: p[:telefono], nombre: p[:nombre], apellido: p[:apellido],
-    datos_extras: { dni: p[:dni] }
+    datos_extras: { cedula: p[:cedula] } # <--- ACÁ ESTABA EL 'dni'
   )
   pac
 end
 puts "✓ Pacientes disponibles: #{pacientes.size}"
 
 # ---------- Citas de ejemplo ----------
-# Buscar los primeros slots libres a partir de mañana y agendar 5 citas
 manana = Date.today.next_day
 hasta  = Date.today + 14
 

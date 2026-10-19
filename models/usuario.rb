@@ -25,6 +25,7 @@ class Usuario < Sequel::Model(:usuarios)
   def validate
     super
     validates_presence [:nombre, :apellido, :email, :rol]
+    validates_unique :username
     validates_unique :email
     validates_includes ROLES, :rol, message: 'no es un rol válido'
     validates_format(/\A[^@\s]+@[^@\s]+\.[^@\s]+\z/, :email, message: 'no tiene formato válido')

@@ -28,11 +28,13 @@ module PacienteService
 
     patron = "%#{termino.downcase}%"
     ds.where(
-      Sequel.ilike(:nombre,   patron) |
-      Sequel.ilike(:apellido, patron) |
-      Sequel.ilike(:telefono, patron) |
-      Sequel.ilike(:dni,      patron)
+      Sequel.like(Sequel.function(:lower, :nombre), patron) |
+      Sequel.like(Sequel.function(:lower, :apellido), patron) |
+      Sequel.like(Sequel.function(:lower, :telefono), patron) |
+      Sequel.like(Sequel.function(:lower, :cedula), patron)
     ).order(:apellido, :nombre).all
+
+
   end
 
   def activos
