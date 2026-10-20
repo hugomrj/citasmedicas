@@ -1755,3 +1755,23 @@ input[type=number] {
 
 
 
+/* ═══ BUSCADOR GLOBAL (Command Palette) ═══ */
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-2);
+}
+
+.search-input:focus {
+  outline: none;
+}
+
+
+
