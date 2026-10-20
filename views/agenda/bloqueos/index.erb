@@ -1,0 +1,75 @@
+<div class="page-head">
+  <div>
+    <h1>Ausencias y Vacaciones</h1>
+    <p>Gestioná los días en que los médicos no estarán disponibles.</p>
+  </div>
+  <a href="/bloqueos/nuevo" class="btn btn-primary">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <span>Nueva Ausencia</span>
+  </a>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <h2>Próximas Ausencias</h2>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Médico</th>
+          <th>Desde</th>
+          <th>Hasta</th>
+          <th>Motivo</th>
+          <th>Notas</th>
+          <th class="c-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @bloqueos.empty? %>
+          <tr>
+            <td colspan="6" style="text-align:center; padding: 2rem; color: var(--text-2);">
+              No hay ausencias programadas.
+            </td>
+          </tr>
+        <% else %>
+          <% @bloqueos.each do |bloqueo| %>
+            <tr>
+              <td class="cell-name"><b><%= bloqueo.medico.nombre_completo %></b></td>
+              <td><%= bloqueo.fecha_inicio.strftime('%d/%m/%Y') %></td>
+              <td><%= bloqueo.fecha_fin.strftime('%d/%m/%Y') %></td>
+              <td><span class="status off"><%= bloqueo.motivo.capitalize %></span></td>
+              <td><span style="color:var(--text-2); font-size: 0.8rem;"><%= bloqueo.notas || '-' %></span></td>
+              <td class="c-actions">
+                <button type="button" class="btn btn-danger btn-sm" onclick="abrirModalCancelarBloqueo(<%= bloqueo.id %>)">
+                  Cancelar
+                </button>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- FORMULARIO OCULTO PARA EL MODAL -->
+<form id="formCancelarBloqueo" method="post" style="display: none;"></form>
+
+<script>
+  function abrirModalCancelarBloqueo(bloqueoId) {
+    document.getElementById('delTitle').textContent = '¿Cancelar ausencia?';
+    document.getElementById('delSub').textContent = 'Al cancelar esta ausencia, el médico volverá a tener disponibilidad en esas fechas.';
+    
+    const btnDel = document.getElementById('btnDel');
+    btnDel.textContent = 'Sí, cancelar ausencia';
+    
+    btnDel.onclick = function() {
+      document.getElementById('formCancelarBloqueo').submit();
+    };
+
+    document.getElementById('formCancelarBloqueo').action = `/bloqueos/${bloqueoId}/cancelar`;
+    document.getElementById('ovDel').classList.add('show');
+  }
+</script>

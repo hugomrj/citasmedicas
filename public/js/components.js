@@ -75,7 +75,7 @@ const icons={
 
 function toast(type,title,msg){
   const container = document.getElementById('toasts');
-  if(!container) return; // Si no hay contenedor de toasts, no hace nada.
+  if(!container) return;
 
   const t=document.createElement('div');
   t.className='toast glass-deep '+type;
@@ -110,59 +110,20 @@ if(avatarBtn && userMenu) {
   document.querySelectorAll('.u-item').forEach(item=>item.addEventListener('click',()=>{
     userMenu.classList.remove('open');
     avatarBtn.classList.remove('active');
+    // Si el enlace ya tiene un href válido (como /avisos o /logout), dejamos que el navegador actúe.
+    // Solo mostramos el toast si es un botón de prototipo sin acción.
     const a=item.dataset.action;
-    if(a==='logout') toast('warn','Sesión cerrada','En el sistema real aquí se destruye la sesión.');
-    else if(a==='notificaciones'){
-      const notifMenu=document.getElementById('notifMenu');
-      const btnNotif=document.getElementById('btnNotif');
-      if(notifMenu) notifMenu.classList.add('open');
-      if(btnNotif) btnNotif.classList.add('active');
+    if(a && a !== 'logout' && a !== 'notificaciones') {
+      toast('info',item.textContent.trim(),'Vista del prototipo pendiente.');
     }
-    else toast('info',item.textContent.trim(),'Vista del prototipo pendiente.');
   }));
 }
 
-/* ═══ MENÚ DE NOTIFICACIONES ═══ */
+/* ═══ MENÚ DE NOTIFICACIONES (SOLO ABRIR/CERRAR) ═══ */
 const btnNotif=document.getElementById('btnNotif'),
-      notifMenu=document.getElementById('notifMenu'),
-      notifList=document.getElementById('notifList'),
-      notifEmpty=document.getElementById('notifEmpty'),
-      notifPing=document.getElementById('notifPing'),
-      btnMarkAll=document.getElementById('btnMarkAll'),
-      userBadge=document.getElementById('userBadge');
+      notifMenu=document.getElementById('notifMenu');
 
-// Solo ejecutamos la lógica de notificaciones si estamos en el dashboard
-if(btnNotif && notifMenu && notifList) {
-  let notifs=[
-    {title:'Backup completado',   msg:'El respaldo nocturno terminó sin errores.',            time:'hace 12 min', unread:true},
-    {title:'Stock bajo',          msg:'3 productos de Bebidas están por agotarse.',           time:'hace 1 h',    unread:true},
-    {title:'Nuevo usuario',       msg:'Carla Méndez se registró en el sistema.',              time:'hace 3 h',    unread:true},
-    {title:'Factura emitida',     msg:'La factura #0248 se generó correctamente.',            time:'ayer',        unread:false},
-  ];
-
-  const unreadCount=()=>notifs.filter(n=>n.unread).length;
-
-  function syncNotifUI(){
-    const u=unreadCount();
-    if(notifPing) notifPing.style.display=u?'block':'none';
-    if(userBadge) {
-      userBadge.textContent=u;
-      userBadge.classList.toggle('hide',!u);
-    }
-    if(btnMarkAll) btnMarkAll.style.display=u?'inline-block':'none';
-    if(notifEmpty) notifEmpty.classList.toggle('show',notifs.length===0);
-    if(notifList) {
-      notifList.style.display=notifs.length?'block':'none';
-      notifList.innerHTML=notifs.map((n,i)=>`
-        <li class="n-item ${n.unread?'unread':'read'}" data-n="${i}">
-          <span class="n-dot"></span>
-          <div class="n-body"><b>${n.title}</b><p>${n.msg}</p><time>${n.time}</time></div>
-        </li>`).join('');
-    }
-  }
-
-  syncNotifUI();
-
+if(btnNotif && notifMenu) {
   btnNotif.addEventListener('click',e=>{
     e.stopPropagation();
     if(userMenu) userMenu.classList.remove('open');
@@ -170,21 +131,6 @@ if(btnNotif && notifMenu && notifList) {
     notifMenu.classList.toggle('open');
     btnNotif.classList.toggle('active',notifMenu.classList.contains('open'));
   });
-
-  notifList.addEventListener('click',e=>{
-    const li=e.target.closest('[data-n]');
-    if(!li)return;
-    notifs[+li.dataset.n].unread=false;
-    syncNotifUI();
-  });
-
-  if(btnMarkAll) {
-    btnMarkAll.addEventListener('click',()=>{
-      notifs.forEach(n=>n.unread=false);
-      syncNotifUI();
-      toast('ok','Notificaciones','Todas fueron marcadas como leídas.');
-    });
-  }
 }
 
 /* Cerrar menús al hacer clic fuera */

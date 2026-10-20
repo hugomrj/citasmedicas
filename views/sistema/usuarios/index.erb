@@ -1,0 +1,78 @@
+<div class="page-head">
+  <div>
+    <h1>Usuarios del Sistema</h1>
+    <p>Administrá las cuentas de acceso del personal.</p>
+  </div>
+  <a href="/usuarios/nuevo" class="btn btn-primary">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <span>Nuevo Usuario</span>
+  </a>
+</div>
+
+<div class="filters glass">
+  <div class="f-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" placeholder="Buscar por nombre, usuario o email..." id="inpBuscar" value="<%= @query_actual %>">
+    <kbd>/</kbd>
+  </div>
+  
+  <button class="btn btn-ghost" id="btnClear" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    Limpiar
+  </button>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <h2>Listado de Personal</h2>
+      
+      <div class="tabs" id="listTabs">
+        <button class="tab <%= @status_actual == 'todos' ? 'on' : '' %>" onclick="cambiarTab('todos')">Todos <span class="t-count"><%= @contador_todos %></span></button>
+        <button class="tab <%= @status_actual == 'activos' ? 'on' : '' %>" onclick="cambiarTab('activos')">Activos <span class="t-count"><%= @contador_activos %></span></button>
+        <button class="tab <%= @status_actual == 'inactivos' ? 'on' : '' %>" onclick="cambiarTab('inactivos')">Inactivos <span class="t-count"><%= @contador_inactivos %></span></button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="contenedorTabla">
+    <%= erb :'sistema/usuarios/_tabla', layout: false %>
+  </div>
+</div>
+
+<script>
+  const inputBuscar = document.getElementById('inpBuscar');
+  const contenedorTabla = document.getElementById('contenedorTabla');
+  const btnClear = document.getElementById('btnClear');
+  let timeoutId = null;
+
+  async function fetchTabla() {
+    const q = inputBuscar.value.trim();
+    const url = `/usuarios?q=${encodeURIComponent(q)}&status=<%= @status_actual %>`;
+    
+    try {
+      const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      if (!res.ok) return;
+      const html = await res.text();
+      contenedorTabla.innerHTML = html;
+    } catch(err) {
+      console.error('Error al buscar:', err);
+    }
+  }
+
+  inputBuscar.addEventListener('input', () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(fetchTabla, 300);
+  });
+
+  btnClear.addEventListener('click', () => {
+    inputBuscar.value = '';
+    fetchTabla();
+  });
+
+  function cambiarTab(status) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('status', status);
+    window.location.href = url.toString();
+  }
+</script>

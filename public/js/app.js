@@ -1,5 +1,6 @@
 /* CitasMédicas — app.js
    Solo contiene lo que necesita JS real:
+   - Desactivar autocompletado en formularios
    - Sidebar móvil / collapsible
    - Kebab menu en filas de tabla
    - Modal de eliminación genérico
@@ -7,6 +8,20 @@
 */
 
 document.addEventListener('DOMContentLoaded', function(){
+
+  /* ═══ Desactivar autocompletado (memoria) en formularios ═══ */
+  document.querySelectorAll('form').forEach(form => {
+    form.setAttribute('autocomplete', 'off');
+  });
+
+  document.querySelectorAll('input, textarea').forEach(input => {
+    // Chrome es rebelde con las contraseñas, así que usamos new-password
+    if (input.type === 'password') {
+      input.setAttribute('autocomplete', 'new-password');
+    } else {
+      input.setAttribute('autocomplete', 'off');
+    }
+  });
 
   /* ═══ Sidebar móvil / collapsible ═══ */
   const side     = document.getElementById('sidebar');

@@ -1,0 +1,38 @@
+<div class="page-head">
+  <div>
+    <h1>Panel de Avisos</h1>
+    <p>Alertas del sistema que requieren tu atención.</p>
+  </div>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <h2>Bandeja de entrada</h2>
+      
+      <div class="tabs" id="listTabs">
+        <button class="tab <%= @status_actual == 'pendientes' ? 'on' : '' %>" onclick="cambiarTab('pendientes')">
+          Pendientes <span class="t-count"><%= @contador_pendientes %></span>
+        </button>
+        <button class="tab <%= @status_actual == 'resueltos' ? 'on' : '' %>" onclick="cambiarTab('resueltos')">
+          Resueltos <span class="t-count"><%= @contador_resueltos %></span>
+        </button>
+        <button class="tab <%= @status_actual == 'descartados' ? 'on' : '' %>" onclick="cambiarTab('descartados')">
+          Descartados <span class="t-count"><%= @contador_descartados %></span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="contenedorTabla">
+    <%= erb :'sistema/avisos/_tabla', layout: false %>
+  </div>
+</div>
+
+<script>
+  function cambiarTab(status) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('status', status);
+    window.location.href = url.toString();
+  }
+</script>

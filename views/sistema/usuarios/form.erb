@@ -1,0 +1,75 @@
+<div class="page-head">
+  <div>
+    <h1><%= @usuario.new? ? 'Nuevo Usuario' : 'Editar Usuario' %></h1>
+    <p>Completá los datos de acceso al sistema.</p>
+  </div>
+  <a href="/usuarios" class="btn btn-ghost">Volver al listado</a>
+</div>
+
+<div class="panel glass form-panel">
+  <form method="post" action="<%= @usuario.new? ? '/usuarios' : "/usuarios/#{@usuario.id}/actualizar" %>">
+    <div class="form-grid">
+      
+      <div class="field fw-2">
+        <label for="nombre">Nombre</label>
+        <input class="input" type="text" id="nombre" name="nombre" value="<%= @usuario.nombre %>" required autocomplete="off">
+      </div>
+
+      <div class="field fw-2">
+        <label for="apellido">Apellido</label>
+        <input class="input" type="text" id="apellido" name="apellido" value="<%= @usuario.apellido %>" required autocomplete="off">
+      </div>
+
+      <div class="field fw-2">
+        <label for="username">Nombre de Usuario (para login)</label>
+        <input class="input" type="text" id="username" name="username" value="<%= @usuario.username %>" required autocomplete="off">
+      </div>
+
+      <div class="field fw-2">
+        <label for="email">Email <span class="opt">(opcional)</span></label>        
+        <input class="input" type="text" id="email" name="email" value="<%= @usuario.email %>" autocomplete="off">
+      </div>
+
+      <div class="field fw-2">
+        <label for="password">Contraseña <%= !@usuario.new? ? '<span class="opt">(dejar en blanco para no cambiar)</span>' : '' %></label>
+        <!-- El required solo se aplica si es un usuario nuevo -->
+        <input class="input" type="password" id="password" name="password" autocomplete="new-password" <%= @usuario.new? ? 'required' : '' %>>
+      </div>
+
+      <div class="field fw-2">
+        <label for="password_confirmation">Confirmar Contraseña</label>
+        <input class="input" type="password" id="password_confirmation" name="password_confirmation" autocomplete="new-password" <%= @usuario.new? ? 'required' : '' %>>
+      </div>
+
+      <div class="field fw-2">
+        <label for="rol">Rol en el sistema</label>
+        <select class="vanilla-select" name="rol" id="rol" required>
+          <option value="recepcion" <%= @usuario.rol == 'recepcion' ? 'selected' : '' %>>Recepción</option>
+          <option value="medico" <%= @usuario.rol == 'medico' ? 'selected' : '' %>>Médico</option>
+          <option value="admin" <%= @usuario.rol == 'admin' ? 'selected' : '' %>>Administrador</option>
+        </select>
+      </div>
+
+      <% if !@usuario.new? %>
+        <div class="field fw-2">
+          <label for="fActive">Estado</label>
+          <label class="switch-row">
+            <input type="checkbox" id="fActive" name="activo" class="switch" value="1" <%= @usuario.activo ? 'checked' : '' %>>
+            <span class="switch-state"></span>
+          </label>
+        </div>
+      <% end %>
+
+    </div>
+
+    <div class="form-sep"></div>
+
+    <div class="form-actions">
+      <span class="spacer"></span>
+      <button type="submit" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        Guardar Usuario
+      </button>
+    </div>
+  </form>
+</div>

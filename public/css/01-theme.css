@@ -42,8 +42,13 @@
     --ok-bg: hsl(152 58% 45% / 0.15);
     --warn: hsl(38 85% 60%);
     --warn-bg: hsl(38 85% 50% / 0.15);
+    --info: hsl(212 85% 65%); /* <--- AGREGAR ESTA LÍNEA (Azul suave) */
+    --info-bg: hsl(212 85% 55% / 0.15);
     --danger: hsl(354 66% 62%);
     --danger-bg: hsl(354 66% 55% / 0.14);
+
+
+
   
     /* Sombras en px (se mantienen en px para nitidez) */
     --shadow: 0 10px 30px hsl(var(--h) 40% 2% / 0.45), 0 0 24px hsl(var(--h) var(--s) 50% / 0.04);
@@ -74,6 +79,8 @@
     --ok-bg: hsl(152 60% 40% / 0.12);
     --warn: hsl(30 90% 36%);
     --warn-bg: hsl(38 90% 45% / 0.13);
+    --info: hsl(212 85% 45%); 
+    --info-bg: hsl(212 85% 45% / 0.12);
     --danger: hsl(354 72% 43%);
     --danger-bg: hsl(354 70% 50% / 0.1);
   

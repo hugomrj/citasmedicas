@@ -1,66 +1,219 @@
 <div class="page-head">
   <div>
-    <h1>Dashboard Estático</h1>
-    <p>Si ves esto con tarjetas y colores, el CSS funciona perfecto.</p>
+    <h1>Dashboard</h1>
+    <p>Resumen general de la clínica.</p>
   </div>
-  <button class="btn btn-primary">
-    <span>Botón de prueba</span>
-  </button>
+  <a href="/agenda/nueva" class="btn btn-primary">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    Nueva Cita
+  </a>
 </div>
 
+<!-- MÉTRICAS PRINCIPALES -->
 <div class="dash-grid">
   <div class="dash-card glass dc-3 metric">
-    <span class="lbl">Citas hoy</span>
-    <strong class="val">5</strong>
-    <div class="metric-foot"><span class="delta up">↗ +2</span></div>
+    <div class="metric-header">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <span class="lbl">Citas para hoy</span>
+    </div>
+    <strong class="val"><%= @citas_hoy_total %></strong>
+    <div class="metric-foot"><span class="delta up"><%= @citas_hoy_pendientes %> pendientes</span></div>
   </div>
 
   <div class="dash-card glass dc-3 metric">
-    <span class="lbl">Pacientes</span>
-    <strong class="val">10</strong>
+    <div class="metric-header">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <span class="lbl">Pacientes Activos</span>
+    </div>
+    <strong class="val"><%= numero_abreviado(@pacientes_count) %></strong>
+    <div class="metric-foot"><span class="delta flat">En el sistema</span></div>
   </div>
 
   <div class="dash-card glass dc-3 metric">
-    <span class="lbl">Médicos</span>
-    <strong class="val">2</strong>
+    <div class="metric-header">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 21h20M6 21V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v14"/></svg></div>
+      <span class="lbl">Médicos Activos</span>
+    </div>
+    <strong class="val"><%= @medicos_count %></strong>
+    <div class="metric-foot"><span class="delta flat">Disponibles</span></div>
   </div>
 
   <div class="dash-card glass dc-3 metric">
-    <span class="lbl">Avisos</span>
-    <strong class="val">0</strong>
+    <div class="metric-header">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+      <span class="lbl">Avisos Pendientes</span>
+    </div>
+    <strong class="val"><%= @avisos_count %></strong>
+    <div class="metric-foot"><a href="/avisos" style="color: var(--acc-txt); font-weight: 600; font-size: 0.8rem;">Ver panel &rarr;</a></div>
   </div>
 </div>
 
+<!-- SEGUNDA FILA: GRÁFICO Y AVISOS -->
+<div class="dash-grid">
+  <!-- Gráfico de Agendamientos -->
+  <div class="dash-card glass dc-8">
+    <div class="chart-head" style="margin-bottom: 1rem;">
+      <div>
+        <h3>Flujo de Agendamientos</h3>
+        <span class="hint">Citas registradas en los últimos 7 días</span>
+      </div>
+    </div>
+    <div style="height: 250px; width: 100%;">
+      <canvas id="citasChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Avisos recientes -->
+  <div class="dash-card glass dc-4" style="display: flex; flex-direction: column;">
+    <div class="chart-head" style="margin-bottom: 1rem;">
+      <h3>Últimos Avisos</h3>
+      <span class="hint">Alertas del sistema</span>
+    </div>
+    
+    <% if @avisos_recientes.empty? %>
+      <div style="padding: 2rem 0; color: var(--text-2); text-align: center; flex: 1; display: flex; align-items: center; justify-content: center;">
+        <p style="font-size: 0.85rem;">Todo al día. No hay avisos.</p>
+      </div>
+    <% else %>
+      <div class="aviso-list">
+        <% @avisos_recientes.each do |aviso| %>
+          <div class="aviso-item sev-<%= aviso.severidad %>">
+            <div class="title"><%= aviso.titulo %></div>
+            <div class="time"><%= aviso.created_at.strftime('%d/%m %H:%M') %></div>
+          </div>
+        <% end %>
+      </div>
+      
+      <div style="margin-top: auto; padding-top: 1rem;">
+        <!-- Usamos la clase estándar del sistema con ancho completo -->
+        <a href="/avisos" class="btn btn-ghost" style="width: 100%; justify-content: center;">Ver todos los avisos</a>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- TERCERA FILA: PRÓXIMOS TURNOS -->
 <div class="dash-grid">
   <div class="dash-card glass dc-12">
-    <div class="chart-head">
-      <h3>Tabla de prueba estática</h3>
+    <div class="chart-head" style="margin-bottom: 1rem;">
+      <div>
+        <h3>Próximos turnos de hoy</h3>
+        <span class="hint">Pacientes que están por llegar</span>
+      </div>
+      <a href="/agenda" class="btn btn-ghost btn-sm">Ver agenda completa</a>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Hora</th>
-            <th>Paciente</th>
-            <th>Médico</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><b>09:00</b></td>
-            <td>María López</td>
-            <td>Ana Gómez</td>
-            <td><span class="status ok">Pendiente</span></td>
-          </tr>
-          <tr>
-            <td><b>10:00</b></td>
-            <td>Juan Martínez</td>
-            <td>Carlos Pérez</td>
-            <td><span class="status off">Cancelada</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+
+    <% if @proximas_citas.empty? %>
+      <div style="padding: 2rem; text-align: center; color: var(--text-2); background: var(--hover); border-radius: 0.75rem; border: 1px dashed var(--brd-2);">
+        <p>No quedan más turnos pendientes para el resto del día.</p>
+      </div>
+    <% else %>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Paciente</th>
+              <th>Médico</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @proximas_citas.each do |cita| %>
+              <tr>
+                <td><b style="color: var(--acc-txt);"><%= cita.fecha_hora.strftime('%H:%M') %></b></td>
+                <td class="cell-name"><b><%= cita.paciente.nombre_completo %></b></td>
+                <td><%= cita.medico.nombre_completo %></td>
+                <td>
+                  <span class="status <%= cita.estado == 'confirmada' ? 'ok' : 'off' %>">
+                    <%= cita.estado.capitalize %>
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
   </div>
 </div>
+
+<!-- SCRIPT DE CHART.JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('citasChart').getContext('2d');
+    
+    // Leemos las variables del tema para generar el color dinámico
+    const rootStyle = getComputedStyle(document.documentElement);
+    const h = rootStyle.getPropertyValue('--h').trim() || '160';
+    const s = rootStyle.getPropertyValue('--s').trim() || '84%';
+    
+    // Colores generados para el gráfico (Línea y Área)
+    const accentColor = `hsl(${h} ${s} 52%)`;
+    const accentColorTransparent = `hsla(${h} ${s} 52% / 0.4)`;
+    const accentColorZero = `hsla(${h} ${s} 52% / 0)`;
+    
+    // Creamos el degradado para el área de abajo
+    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+    gradient.addColorStop(0, accentColorTransparent); 
+    gradient.addColorStop(1, accentColorZero);
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: <%= @chart_labels.to_json %>,
+        datasets: [{
+          label: 'Citas',
+          data: <%= @chart_data.to_json %>,
+          borderColor: accentColor,
+          backgroundColor: gradient,
+          borderWidth: 3,
+          pointBackgroundColor: accentColor,
+          pointBorderColor: '#1e293b',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            padding: 10,
+            cornerRadius: 8,
+            displayColors: false,
+            callbacks: {
+              label: function(context) {
+                return context.parsed.y + ' citas';
+              }
+            }
+          }
+        },
+        scales: {
+          x: { 
+            grid: { display: false, drawBorder: false },
+            ticks: { color: '#94a3b8', font: { size: 12 } }
+          },
+          y: { 
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+            ticks: { 
+              color: '#94a3b8', 
+              stepSize: 5,
+              font: { size: 12 }
+            }
+          }
+        }
+      }
+    });
+  });
+</script>

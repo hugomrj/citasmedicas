@@ -12,7 +12,8 @@ module UsuarioService
       nombre:                nombre.to_s.strip,
       apellido:              apellido.to_s.strip,
       username:              username.to_s.strip.downcase,
-      email:                 email.to_s.strip.downcase,
+      # Si el email viene vacío, lo guardamos como nil para no chocar con el UNIQUE
+      email:                 email.to_s.strip.empty? ? nil : email.to_s.strip.downcase,
       password:              password,
       password_confirmation: password,
       rol:                   rol
@@ -24,10 +25,21 @@ module UsuarioService
     raise ArgumentError, 'Usuario no encontrado' unless usuario
 
     attrs = attrs.dup
-    attrs[:email] = attrs[:email].to_s.strip.downcase if attrs[:email]
+    
+    # Si el email viene en el hash, lo limpiamos y lo convertimos a nil si está vacío
+    if attrs.key?(:email)
+      attrs[:email] = attrs[:email].to_s.strip.empty? ? nil : attrs[:email].to_s.strip.downcase
+    end
 
+    # Validar la contraseña solo si se envió una nueva
     if attrs[:password]
-      raise ArgumentError, 'password_confirmation no coincide' if attrs[:password] != attrs[:password_confirmation]
+      if attrs[:password] != attrs[:password_confirmation]
+        raise ArgumentError, 'password_confirmation no coincide'
+      end
+    else
+      # Si no se envía contraseña, borramos las llaves del hash para que no se actualicen
+      attrs.delete(:password)
+      attrs.delete(:password_confirmation)
     end
 
     usuario.update(attrs)

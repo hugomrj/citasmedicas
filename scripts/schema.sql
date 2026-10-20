@@ -5,7 +5,7 @@ CREATE TABLE usuarios (
   nombre          VARCHAR(255) NOT NULL,
   apellido        VARCHAR(255) NOT NULL,
   username        VARCHAR(255) NOT NULL UNIQUE, 
-  email           VARCHAR(255) NOT NULL UNIQUE,
+  email           VARCHAR(255) UNIQUE, -- <--- SIN NOT NULL
   password_digest VARCHAR(255) NOT NULL,
   rol             VARCHAR(255) NOT NULL,
   activo          BOOLEAN NOT NULL DEFAULT 1,
@@ -13,7 +13,6 @@ CREATE TABLE usuarios (
   updated_at      DATETIME NOT NULL,
   CONSTRAINT usuarios_rol_valido CHECK (rol IN ('admin', 'recepcion', 'medico'))
 );
-
 
 
 CREATE TABLE especialidades (

@@ -49,7 +49,7 @@ puts "⏳ Creando 10 médicos con sus horarios..."
   if m.nil?
     m = Medico.create(
       nombre: nombres_medicos[i], apellido: apellidos_medicos[i], 
-      especialidad_id: especialidades_creadas[i].id, # <--- AHORA USA EL ID
+      especialidad_id: especialidades_creadas[i].id,
       matricula: matricula,
       email: "#{nombres_medicos[i].downcase}.#{apellidos_medicos[i].downcase}@clinica.local",
       telefono: "555-10#{i.to_s.rjust(2, '0')}", horizonte_dias: [30, 60, 90].sample,
@@ -74,63 +74,105 @@ end
 puts "✓ 10 Médicos listos con sus horarios"
 
 # ---------- 200 Pacientes ----------
-nombres_pac = ['María', 'Juan', 'Sofía', 'Diego', 'Valeria', 'Andrés', 'Camila', 'Luis', 'Daniela', 'Pablo', 
-               'Marta', 'Pedro', 'Lucía', 'Jorge', 'Elena', 'Raúl', 'Silvia', 'Fernando', 'Gabriela', 'Ricardo',
-               'Claudia', 'Héctor', 'Rosa', 'Arturo', 'Beatriz', 'Oscar', 'Teresa', 'Alberto', 'Gloria', 'Eduardo']
-apellidos_pac = ['López', 'Martínez', 'Hernández', 'Ramírez', 'Torres', 'Flores', 'Ruiz', 'Mendoza', 'Soto', 'Castro',
-                 'Vargas', 'Rojas', 'Silva', 'Ortiz', 'Morales', 'Gutiérrez', 'Chávez', 'Ramos', 'Jiménez', 'Álvarez']
+nombres_pac = [
+  'María', 'Juan', 'Sofía', 'Diego', 'Valeria', 'Andrés', 'Camila', 'Luis', 'Daniela', 'Pablo', 
+  'Marta', 'Pedro', 'Lucía', 'Jorge', 'Elena', 'Raúl', 'Silvia', 'Fernando', 'Gabriela', 'Ricardo',
+  'Claudia', 'Héctor', 'Rosa', 'Arturo', 'Beatriz', 'Oscar', 'Teresa', 'Alberto', 'Gloria', 'Eduardo',
+  'Gladys', 'Derlis', 'Osvaldo', 'Ramona', 'Blanca', 'Néstor', 'Cinthia', 'Rodrigo', 'Verónica', 'Marcelo',
+  'Lorena', 'Gustavo', 'Fabiola', 'Hugo', 'Alicia', 'Víctor', 'Griselda', 'Nelson', 'Mirta', 'César'
+]
 
-puts "⏳ Generando 200 pacientes (esto puede tardar unos segundos)..."
+apellidos_pac = [
+  'López', 'Martínez', 'Hernández', 'Ramírez', 'Torres', 'Flores', 'Ruiz', 'Mendoza', 'Soto', 'Castro',
+  'Vargas', 'Rojas', 'Silva', 'Ortiz', 'Morales', 'Gutiérrez', 'Chávez', 'Ramos', 'Jiménez', 'Álvarez',
+  'Benítez', 'Giménez', 'Ayala', 'Villalba', 'Ocampos', 'Cáceres', 'Franco', 'Acosta', 'Bogado', 'Insfrán'
+]
+
+puts "⏳ Generando 200 pacientes..."
 200.times do |i|
   nombre = nombres_pac.sample
   apellido = apellidos_pac.sample
-  telefono = "555-#{rand(3000..9999)}"
+  telefono = "555-#{rand(1000..9999)}"
   cedula = "#{rand(1000000..9999999)}"
   
   PacienteService.buscar_o_crear(
     telefono: telefono, nombre: nombre, apellido: apellido,
-    datos_extras: { cedula: cedula, email: "#{nombre.downcase}#{i}@correo.com" }
+    datos_extras: { cedula: cedula, email: "#{nombre.downcase.gsub(' ', '')}#{i}@correo.com" }
   )
 end
 puts "✓ 200 Pacientes creados"
 
-# ---------- Citas Masivas ----------
-puts "⏳ Generando citas médicas..."
+# ---------- NUEVO: Citas Históricas (Para llenar el gráfico del Dashboard) ----------
+puts "⏳ Generando citas históricas (últimos 7 días)..."
 todos_los_pacientes = Paciente.all
+
+7.times do |i|
+  dia_pasado = Date.today - i
+  
+  # Generamos unas 20 citas por día
+  20.times do
+    medico = medicos_creados.sample
+    paciente = todos_los_pacientes.sample
+    
+    # Hora entre 08:00 y 18:00
+    hora = rand(8..17)
+    minuto = [0, 30].sample
+    fecha_hora = Time.new(dia_pasado.year, dia_pasado.month, dia_pasado.day, hora, minuto, 0)
+    
+    # Evitamos duplicados en la misma hora con el mismo médico
+    next if Cita.where(medico_id: medico.id, fecha_hora: fecha_hora).count > 0
+    
+    begin
+      # Usamos Cita.create directo para saltear la validación de fecha futura
+      Cita.create(
+        paciente_id: paciente.id,
+        medico_id: medico.id,
+        fecha_hora: fecha_hora,
+        fecha_hora_fin: fecha_hora + (30 * 60),
+        duracion_min: 30,
+        estado: ['atendida', 'atendida', 'atendida', 'no_asistio', 'cancelada'].sample,
+        canal_origen: ['presencial', 'telefono'].sample,
+        motivo: ['Control de rutina', 'Dolor agudo', 'Revisión de estudios'].sample,
+        creado_por_usuario_id: recepcion.id,
+        codigo_confirmacion: SecureRandom.hex(4).upcase
+      )
+    rescue => e
+      # Ignorar si choca
+    end
+  end
+end
+puts "✓ Citas históricas creadas"
+
+# ---------- Citas Futuras ----------
+puts "⏳ Generando citas médicas futuras..."
 manana = Date.today.next_day
 hasta  = Date.today + 15
-
 citas_creadas = 0
 
 medicos_creados.each do |medico|
-  # Buscamos slots libres para este médico en los próximos 15 días
   slots = DisponibilidadService.slots_libres(
     medico_id: medico.id, 
     desde: Time.new(manana.year, manana.month, manana.day, 0, 0, 0),
     hasta: Time.new(hasta.year, hasta.month, hasta.day, 23, 59, 0)
   )
   
-  # De todos los slots disponibles, tomamos un máximo de 15 al azar para llenar la agenda
   slots.sample(15).each do |slot|
     paciente = todos_los_pacientes.sample
-    canal = ['presencial', 'telefono', 'presencial'].sample # Damos más peso a presencial
+    canal = ['presencial', 'telefono', 'presencial'].sample
     
     begin
       CitaService.crear(
-        paciente_id: paciente.id,
-        medico_id: medico.id,
-        fecha_hora: slot[:inicio],
-        canal_origen: canal,
+        paciente_id: paciente.id, medico_id: medico.id,
+        fecha_hora: slot[:inicio], canal_origen: canal,
         creado_por_usuario_id: recepcion.id,
         motivo: ['Control de rutina', 'Dolor agudo', 'Revisión de estudios', 'Primera consulta'].sample
       )
       citas_creadas += 1
     rescue => e
-      # Silenciamos errores de solapamiento (puede pasar si el azar elige un slot ya tomado)
     end
   end
 end
-puts "✓ #{citas_creadas} Citas creadas"
+puts "✓ #{citas_creadas} Citas futuras creadas"
 
 # ---------- Bloqueo de vacaciones (para probar ausencias) ----------
 if Bloqueo.where(motivo: 'vacaciones').count == 0
@@ -152,6 +194,28 @@ if Bloqueo.where(motivo: 'vacaciones').count == 0
     puts "· Bloqueo no creado: #{e.message}"
   end
 end
+
+# ---------- Avisos de ejemplo extra ----------
+puts "⏳ Generando avisos de ejemplo extra..."
+unless Medico.where(matricula: 'MP-9999').first
+  Medico.create(
+    nombre: 'Gregorio', apellido: 'SinHorario',
+    especialidad_id: especialidades_creadas.first.id,
+    matricula: 'MP-9999', email: 'gregorio@clinica.local', activo: true
+  )
+end
+
+AvisoService.emitir(
+  tipo: 'error_sistema', severidad: 'error', entidad_tipo: 'sistema', entidad_id: nil,
+  titulo: 'Error de conexión con el servidor de correos',
+  detalle: 'No se pudieron enviar los recordatorios de mañana. Revisá la configuración SMTP.'
+)
+
+AvisoService.emitir(
+  tipo: 'advertencia_generica', severidad: 'warning', entidad_tipo: 'sistema', entidad_id: nil,
+  titulo: 'Pocos turnos disponibles',
+  detalle: 'Quedan menos de 5 turnos libres para la próxima semana con los médicos de guardia.'
+)
 
 # ---------- Escaneo de avisos ----------
 AvisoService.escanear

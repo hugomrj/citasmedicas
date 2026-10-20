@@ -1,0 +1,84 @@
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th class="c-state">Estado</th>
+        <th class="c-actions">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @usuarios.empty? %>
+        <tr>
+          <td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-2);">
+            No se encontraron usuarios.
+          </td>
+        </tr>
+      <% else %>
+        <% @usuarios.each do |u| %>
+          <tr>
+
+
+
+            <td class="cell-name">
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <b><%= pac.nombre_completo %></b>
+                <!-- ETIQUETA DE CANAL -->
+                <% if pac.canal_registro == 'chatbot' || pac.canal_registro == 'telegram' %>
+                  <span class="status" style="font-size: 0.65rem; padding: 0.1rem 0.4rem; color: var(--info); background: var(--info-bg); border-color: var(--info); text-transform: capitalize;">
+                    <%= pac.canal_registro %>
+                  </span>
+                <% end %>
+              </div>
+              <span><%= pac.email || 'Sin correo' %></span>
+            </td>
+
+
+
+            <td><%= u.email || '-' %></td>
+            <td>
+              <!-- Le sacamos la clase status para que no sea una píldora -->
+              <% if u.rol == 'admin' %>
+                <span style="font-weight: 600; color: var(--acc);">Admin</span>
+              <% elsif u.rol == 'medico' %>
+                <span style="font-weight: 600; color: var(--text);">Médico</span>
+              <% else %>
+                <span style="font-weight: 500; color: var(--text-2);">Recepción</span>
+              <% end %>
+            </td>
+            <td class="c-state">
+              <!-- La píldora se queda acá porque es el estado operativo -->
+              <span class="status <%= u.activo ? 'ok' : 'off' %>">
+                <%= u.activo ? 'Activo' : 'Inactivo' %>
+              </span>
+            </td>
+            <td class="c-actions">
+              <div class="row-actions">
+                <button class="kebab" data-kebab>
+                  <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>
+                </button>
+                <div class="dd glass-deep">
+                  <button type="button" onclick="window.location.href='/usuarios/<%= u.id %>/editar'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+                    Editar
+                  </button>
+                  
+                  <% if u.activo && u.id != usuario_actual.id %>
+                    <form method="post" action="/usuarios/<%= u.id %>/desactivar" style="margin: 0; padding: 0;">
+                      <button type="submit" class="danger" style="width: 100%;" onclick="return confirm('¿Desactivar a <%= u.nombre_completo %>? No podrá ingresar al sistema.')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                        Desactivar
+                      </button>
+                    </form>
+                  <% end %>
+                </div>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

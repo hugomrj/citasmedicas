@@ -43,14 +43,17 @@ module AvisoService
 
   def escanear
     Cita.where(estado: 'requiere_reprogramacion').all.each do |cita|
+      # Buscamos los nombres reales
+      paciente_nombre = cita.paciente&.nombre_completo || "Paciente ##{cita.paciente_id}"
+      medico_nombre = cita.medico&.nombre_completo || "Médico ##{cita.medico_id}"
+      
       emitir(
         tipo:         'cita_requiere_reprogramacion',
         severidad:    'warning',
         entidad_tipo: 'cita',
         entidad_id:   cita.id,
-        titulo:       "Cita ##{cita.id} requiere reprogramación",
-        detalle:      "Paciente ##{cita.paciente_id} · Médico ##{cita.medico_id} · " \
-                      "#{cita.fecha_hora.strftime('%d/%m/%Y %H:%M')}"
+        titulo:       "Cita de #{paciente_nombre} requiere reprogramación",
+        detalle:      "Médico: #{medico_nombre} · Fecha: #{cita.fecha_hora.strftime('%d/%m/%Y %H:%M')}"
       )
     end
 

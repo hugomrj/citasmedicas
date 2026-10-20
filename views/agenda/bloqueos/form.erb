@@ -1,0 +1,67 @@
+<div class="page-head">
+  <div>
+    <h1>Nueva Ausencia</h1>
+    <p>Programá las vacaciones, congresos o licencias de un médico.</p>
+  </div>
+  <a href="/bloqueos" class="btn btn-ghost">Volver al listado</a>
+</div>
+
+<div class="panel glass form-panel">
+  <form method="post" action="/bloqueos">
+    <div class="form-grid">
+      
+      <div class="field fw-full">
+        <label for="medico_id">Médico</label>
+        <select class="vanilla-select" name="medico_id" id="medico_id" required>
+          <option value="" disabled selected>Seleccionar médico...</option>
+          <% @medicos.each do |m| %>
+            <option value="<%= m.id %>"><%= m.nombre_completo %> - <%= m.especialidad&.nombre %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div class="field fw-2">
+        <label for="fecha_inicio">Fecha de Inicio</label>
+        <input class="input" type="date" id="fecha_inicio" name="fecha_inicio" required>
+      </div>
+
+      <div class="field fw-2">
+        <label for="fecha_fin">Fecha de Fin</label>
+        <input class="input" type="date" id="fecha_fin" name="fecha_fin" required>
+        <div class="hint">Ambas fechas están incluidas en la ausencia.</div>
+      </div>
+
+      <div class="field fw-full">
+        <label for="motivo">Motivo</label>
+        <select class="vanilla-select" name="motivo" id="motivo" required>
+          <option value="vacaciones">Vacaciones</option>
+          <option value="congreso">Congreso / Capacitación</option>
+          <option value="licencia">Licencia médica</option>
+          <option value="feriado">Feriado</option>
+          <option value="personal">Motivos personales</option>
+        </select>
+      </div>
+
+      <div class="field fw-full">
+        <label for="notas">Notas internas <span class="opt">(opcional)</span></label>
+        <input class="input" type="text" id="notas" name="notas" placeholder="Ej. Viaje familiar, congreso de cardiología...">
+      </div>
+
+    </div>
+
+    <!-- Advertencia importante -->
+    <div class="alert alert-warning" style="margin-top: 1rem; font-size: 0.85rem;">
+      <strong>Atención:</strong> Si hay citas agendadas dentro de este rango, pasarán automáticamente al estado <strong>"Requiere reprogramación"</strong>.
+    </div>
+
+    <div class="form-sep" style="margin-top: 1.5rem;"></div>
+
+    <div class="form-actions">
+      <span class="spacer"></span>
+      <button type="submit" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        Guardar Ausencia
+      </button>
+    </div>
+  </form>
+</div>

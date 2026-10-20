@@ -1,9 +1,8 @@
-  module AuthUsuarioRoutes
+module AuthUsuarioRoutes
   def self.registered(app)
     
     app.get '/login' do
       redirect '/dashboard' if autenticado?
-      @crumb_here = 'Iniciar sesión'
       erb :'auth/usuario/login' # ← sin layout, página independiente
     end
 
@@ -17,7 +16,6 @@
     
       if usuario
         iniciar_sesion!(usuario)
-        # ACÁ ESTÁ LA CLAVE: devolvemos el "redirect" con la URL
         { ok: true, redirect: '/dashboard' }.to_json
       else
         status 401

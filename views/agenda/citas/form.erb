@@ -1,21 +1,22 @@
 <div class="page-head">
   <div>
-    <h1>Nueva Cita</h1>
+    <h1><%= @cita ? 'Editar Cita' : 'Nueva Cita' %></h1>
     <p>Seleccioná el paciente, el médico y el turno disponible.</p>
   </div>
   <a href="/agenda" class="btn btn-ghost">Volver a la agenda</a>
 </div>
 
 <div class="panel glass form-panel">
-  <form method="post" action="/agenda" id="formCita">
+  <!-- Si hay @cita, apunta a actualizar. Si no, apunta a crear. -->
+  <form method="post" action="<%= @cita ? "/agenda/#{@cita.id}/actualizar" : '/agenda' %>" id="formCita">
     <div class="form-grid">
       
       <div class="field fw-2">
         <label for="paciente_id">Paciente</label>
         <select class="vanilla-select" name="paciente_id" id="paciente_id" required>
-          <option value="" disabled selected>Seleccionar paciente...</option>
+          <option value="" disabled <%= @cita ? '' : 'selected' %>>Seleccionar paciente...</option>
           <% @pacientes.each do |p| %>
-            <option value="<%= p.id %>"><%= p.nombre_completo %> (<%= p.telefono %>)</option>
+            <option value="<%= p.id %>" <%= @cita && @cita.paciente_id == p.id ? 'selected' : '' %>><%= p.nombre_completo %> (<%= p.telefono %>)</option>
           <% end %>
         </select>
       </div>
@@ -23,28 +24,29 @@
       <div class="field fw-2">
         <label for="medico_id">Médico</label>
         <select class="vanilla-select" name="medico_id" id="medico_id" required>
-          <option value="" disabled selected>Seleccionar médico...</option>
+          <option value="" disabled <%= @cita ? '' : 'selected' %>>Seleccionar médico...</option>
           <% @medicos.each do |m| %>
-            <option value="<%= m.id %>"><%= m.nombre_completo %> - <%= m.especialidad&.nombre %></option>
+            <option value="<%= m.id %>" <%= @cita && @cita.medico_id == m.id ? 'selected' : '' %>><%= m.nombre_completo %> - <%= m.especialidad&.nombre %></option>
           <% end %>
         </select>
       </div>
 
       <div class="field fw-2">
         <label for="fecha">Fecha</label>
-        <input class="input" type="date" id="fecha" name="fecha" required>
-      </div>
-
-      <div class="field fw-2">
-        <label for="hora">Horario Disponible</label>
-        <select class="vanilla-select" name="fecha_hora" id="hora" required>
-          <option value="" disabled selected>Primero elegí médico y fecha...</option>
-        </select>
+        <input class="input" type="date" id="fecha" name="fecha" value="<%= @cita ? @cita.fecha_hora.strftime('%Y-%m-%d') : '' %>" required>
       </div>
 
       <div class="field fw-full">
+        <label>Horarios Disponibles</label>
+        <div id="slots-container" class="slots-grid">
+          <div class="slots-empty">Elegí un médico y una fecha para ver los horarios.</div>
+        </div>
+        <input type="hidden" name="fecha_hora" id="fecha_hora" value="<%= @cita ? @cita.fecha_hora.to_s : '' %>" required>
+      </div>
+
+      <div class="field fw-full" style="margin-top: 1rem;">
         <label for="motivo">Motivo de la consulta <span class="opt">(opcional)</span></label>
-        <input class="input" type="text" id="motivo" name="motivo" placeholder="Ej. Control de rutina">
+        <input class="input" type="text" id="motivo" name="motivo" value="<%= @cita ? @cita.motivo : '' %>" placeholder="Ej. Control de rutina">
       </div>
 
     </div>
@@ -53,8 +55,8 @@
 
     <div class="form-actions">
       <span class="spacer"></span>
-      <button type="submit" class="btn btn-primary" id="btnGuardar" disabled>
-        Agendar Cita
+      <button type="submit" class="btn btn-primary" id="btnGuardar" <%= @cita ? '' : 'disabled' %>>
+        <%= @cita ? 'Guardar Cambios' : 'Agendar Cita' %>
       </button>
     </div>
   </form>
@@ -63,50 +65,78 @@
 <script>
   const medicoSelect = document.getElementById('medico_id');
   const fechaInput = document.getElementById('fecha');
-  const horaSelect = document.getElementById('hora');
+  const slotsContainer = document.getElementById('slots-container');
+  const inputFechaHora = document.getElementById('fecha_hora');
   const btnGuardar = document.getElementById('btnGuardar');
+  
+  // Si estamos editando, guardamos la hora actual para marcarla como seleccionada
+  const horaOriginal = "<%= @cita ? @cita.fecha_hora.strftime('%H:%M') : '' %>";
 
-  // Función que busca los turnos libres en el servidor
   async function buscarTurnos() {
     const medicoId = medicoSelect.value;
     const fecha = fechaInput.value;
 
     if (!medicoId || !fecha) return;
 
-    // Resetear el select de horas
-    horaSelect.innerHTML = '<option value="" disabled selected>Buscando turnos...</option>';
-    // Destruimos la instancia anterior del vanilla select para que se actualice
-    const wrapper = horaSelect.closest('.vanilla-select-wrapper');
-    if (wrapper) {
-      wrapper.replaceWith(horaSelect); 
-      horaSelect.classList.remove('vanilla-select-original');
-    }
+    slotsContainer.innerHTML = '<div class="slots-empty">Cargando agenda...</div>';
+    btnGuardar.disabled = true;
 
     try {
       const res = await fetch(`/agenda/slots?medico_id=${medicoId}&fecha=${fecha}`);
       const slots = await res.json();
 
       if (slots.length === 0) {
-        horaSelect.innerHTML = '<option value="" disabled selected>No hay turnos disponibles</option>';
-        btnGuardar.disabled = true;
-      } else {
-        horaSelect.innerHTML = '<option value="" disabled selected>Seleccionar hora...</option>';
-        slots.forEach(slot => {
-          horaSelect.innerHTML += `<option value="${slot.datetime}">${slot.hora}</option>`;
-        });
-        btnGuardar.disabled = false;
+        slotsContainer.innerHTML = '<div class="slots-empty">El médico no atiende este día.</div>';
+        return;
       }
-    } catch (err) {
-      horaSelect.innerHTML = '<option value="" disabled selected>Error al cargar turnos</option>';
-    }
 
-    // Volvemos a inicializar el vanilla-select con las nuevas opciones
-    if (typeof initVanillaSelects === 'function') {
-      initVanillaSelects();
+      slotsContainer.innerHTML = '';
+      
+      slots.forEach(slot => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'slot-btn';
+        btn.textContent = slot.hora;
+        
+        // Si estamos editando y esta es la hora original, la marcamos
+        if (horaOriginal === slot.hora) {
+          btn.classList.add('selected');
+          inputFechaHora.value = slot.datetime;
+          btnGuardar.disabled = false;
+        }
+
+        if (slot.disponible || horaOriginal === slot.hora) { 
+          // Permitimos clickear el original aunque ya esté "ocupado" por esta misma cita
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.slot-btn.selected').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            inputFechaHora.value = slot.datetime;
+            btnGuardar.disabled = false;
+          });
+        } else {
+          btn.classList.add('disabled');
+          btn.disabled = true;
+        }
+        
+        slotsContainer.appendChild(btn);
+      });
+
+      // Si estamos editando y ya cargamos, dejamos el botón listo
+      if (horaOriginal && inputFechaHora.value) {
+         btnGuardar.disabled = false;
+      }
+
+    } catch (err) {
+      slotsContainer.innerHTML = '<div class="slots-empty">Error al cargar la agenda.</div>';
     }
   }
 
-  // Escuchamos cambios en el médico y en la fecha
   medicoSelect.addEventListener('change', buscarTurnos);
   fechaInput.addEventListener('change', buscarTurnos);
+
+  // Si estamos en modo edición, forzamos la búsqueda inicial al cargar la página
+  if (horaOriginal) {
+    // Pequeño delay para que el vanilla-select se inicialice
+    setTimeout(buscarTurnos, 100);
+  }
 </script>

@@ -3,6 +3,8 @@
     <h1><%= @paciente.new? ? 'Nuevo Paciente' : 'Editar Paciente' %></h1>
     <p>Completá los datos personales del paciente.</p>
   </div>
+  <!-- ACÁ AGREGAMOS EL BOTÓN DE VOLVER ARRIBA -->
+  <a href="/pacientes" class="btn btn-ghost">Volver al listado</a>
 </div>
 
 <div class="panel glass form-panel">
@@ -40,7 +42,6 @@
         <input class="input" type="text" id="email" name="email" value="<%= @paciente.email %>">
       </div>
 
-      
       <!-- Switch de Estado al lado del Correo -->
       <% if !@paciente.new? %>
         <div class="field fw-2">
@@ -57,7 +58,7 @@
 
     <div class="form-actions">
       <span class="spacer"></span>
-      <a href="/pacientes" class="btn btn-ghost">Cancelar</a>
+      <!-- QUITAMOS EL BOTÓN CANCELAR Y DEJAMOS SOLO EL DE GUARDAR -->
       <button type="submit" class="btn btn-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
         <span>Guardar Paciente</span>

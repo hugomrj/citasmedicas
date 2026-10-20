@@ -48,35 +48,90 @@ module ClinicaDisponibilidadRoutes
       erb :'clinica/disponibilidad/editar', layout: :'layout/base'
     end
 
-    # 3. Guardar horarios (MÚLTIPLES bloques por día con índices)
+    # 3. Guardar horarios (CON VALIDACIONES ESTRICTAS)
     app.post '/disponibilidad/:id' do
       requiere_login!
       @medico = Medico[params[:id]]
       halt 404, "Médico no encontrado" unless @medico
 
+      @dias = {
+        1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 
+        4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 0 => 'Domingo'
+      }
+
+      errores = []
+      bloques_por_dia = {}
+
+      # 1. Recolectar y validar individualmente
+      params[:horarios]&.each do |dia_semana, bloques|
+        dia_num = dia_semana.to_i
+        bloques_por_dia[dia_num] = []
+        
+        bloques.each do |_index, datos|
+          inicio = (datos["inicio"] || datos[:inicio]).to_s.strip
+          fin    = (datos["fin"] || datos[:fin]).to_s.strip
+
+          # Si ambos están vacíos, ignoramos el bloque
+          next if inicio.empty? && fin.empty?
+
+          # Si falta uno de los dos, error
+          if inicio.empty? || fin.empty?
+            errores << "El día #{@dias[dia_num]} tiene un horario incompleto (falta entrada o salida)."
+            next
+          end
+
+          # Normalizar formato (por si escriben 9:00 en lugar de 09:00)
+          unless inicio =~ /\A\d{1,2}:\d{2}\z/ && fin =~ /\A\d{1,2}:\d{2}\z/
+            errores << "El día #{@dias[dia_num]} tiene un formato de hora inválido (use HH:MM)."
+            next
+          end
+          
+          inicio = format("%02d:%02d", *inicio.split(':').map(&:to_i))
+          fin = format("%02d:%02d", *fin.split(':').map(&:to_i))
+
+          # Validar que la salida sea mayor a la entrada
+          if fin <= inicio
+            errores << "En el día #{@dias[dia_num]}, la hora de salida (#{fin}) debe ser mayor a la de entrada (#{inicio})."
+            next
+          end
+
+          bloques_por_dia[dia_num] << { inicio: inicio, fin: fin }
+        end
+      end
+
+      # 2. Validar solapamientos (por médico y por día)
+      bloques_por_dia.each do |dia, bloques|
+        next if bloques.length <= 1
+        # Ordenamos por hora de entrada
+        ordenados = bloques.sort_by { |b| b[:inicio] }
+        
+        ordenados.each_cons(2) do |a, b|
+          if b[:inicio] < a[:fin]
+            errores << "En el día #{@dias[dia]}, los horarios #{a[:inicio]}-#{a[:fin]} y #{b[:inicio]}-#{b[:fin]} se superponen."
+          end
+        end
+      end
+
+      # 3. Si hay errores, no guardamos nada y volvemos
+      if errores.any?
+        flash[:error] = errores.join(" ")
+        redirect "/disponibilidad/#{@medico.id}"
+      end
+
+      # 4. Si todo está OK, guardamos
       begin
         DB.transaction do
-          # Borramos los horarios viejos
           Disponibilidad.where(medico_id: @medico.id).delete
           
-          # params[:horarios] es un Hash: { "1" => { "0" => {inicio: "09:00", fin: "13:00"}, "1" => {...} } }
-          params[:horarios]&.each do |dia_semana, bloques|
-            # bloques es el hash de índices para este día
-            bloques.each do |_index, datos|
-              # datos es el hash con {inicio: "...", fin: "..."}
-              # Usamos datos["inicio"] por si Rack los convierte a string keys
-              inicio = datos["inicio"] || datos[:inicio]
-              fin = datos["fin"] || datos[:fin]
-
-              if inicio.to_s.strip != "" && fin.to_s.strip != ""
-                Disponibilidad.create(
-                  medico_id: @medico.id,
-                  dia_semana: dia_semana.to_i,
-                  hora_inicio: inicio,
-                  hora_fin: fin,
-                  duracion_turno_min: 30
-                )
-              end
+          bloques_por_dia.each do |dia_semana, bloques|
+            bloques.each do |b|
+              Disponibilidad.create(
+                medico_id: @medico.id,
+                dia_semana: dia_semana,
+                hora_inicio: b[:inicio],
+                hora_fin: b[:fin],
+                duracion_turno_min: 30
+              )
             end
           end
         end
@@ -84,8 +139,8 @@ module ClinicaDisponibilidadRoutes
         flash[:success] = 'Horarios actualizados correctamente.'
         redirect '/disponibilidad'
         
-      rescue ArgumentError => e
-        flash[:error] = e.message
+      rescue => e
+        flash[:error] = "Error al guardar: #{e.message}"
         redirect "/disponibilidad/#{@medico.id}"
       end
     end

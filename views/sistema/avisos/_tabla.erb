@@ -1,0 +1,71 @@
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 40px;"></th>
+        <th>Aviso</th>
+        <th>Fecha</th>
+        <th class="c-actions">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @avisos.empty? %>
+        <tr>
+          <td colspan="4" style="text-align:center; padding: 3rem; color: var(--text-2);">
+            No hay avisos en esta bandeja.
+          </td>
+        </tr>
+      <% else %>
+        <% @avisos.each do |aviso| %>
+          <tr>
+            <td>
+              <!-- Puntito con los colores semánticos (Rojo, Amarillo, Azul) -->
+              <div style="width: 10px; height: 10px; border-radius: 50%; 
+                          background: <%= aviso.severidad == 'error' ? 'var(--danger)' : (aviso.severidad == 'warning' ? 'var(--warn)' : 'var(--info)') %>; 
+                          box-shadow: 0 0 8px <%= aviso.severidad == 'error' ? 'var(--danger)' : (aviso.severidad == 'warning' ? 'var(--warn)' : 'var(--info)') %>;">
+              </div>
+            </td>
+            <td class="cell-name">
+              <b style="font-size: 0.9rem; margin-bottom: 0.2rem; display: block;"><%= aviso.titulo %></b>
+              <span style="color: var(--text-2); font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                <!-- Icono de detalle -->
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                <%= aviso.detalle %>
+              </span>
+            </td>
+            <td>
+              <span style="font-size: 0.8rem; color: var(--text-2);">
+                <%= aviso.created_at.strftime('%d/%m/%Y %H:%M') %>
+              </span>
+            </td>
+            <td class="c-actions">
+              <% if @status_actual == 'pendientes' %>
+                <div class="row-actions">
+                  <button class="kebab" data-kebab>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>
+                  </button>
+                  <div class="dd glass-deep">
+                    <form method="post" action="/avisos/<%= aviso.id %>/resolver" style="margin: 0; padding: 0;">
+                      <button type="submit">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                        Marcar como resuelto
+                      </button>
+                    </form>
+                    <form method="post" action="/avisos/<%= aviso.id %>/descartar" style="margin: 0; padding: 0;">
+                      <button type="submit" class="danger">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                        Descartar
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              <% else %>
+                <span class="status off"><%= aviso.estado.capitalize %></span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -5,6 +5,11 @@ require_relative '../modules/clinica/medicos/routes'
 require_relative '../modules/clinica/disponibilidad/routes'
 require_relative '../modules/clinica/especialidades/routes'
 require_relative '../modules/agenda/citas/routes'
+require_relative '../modules/agenda/bloqueos/routes' 
+require_relative '../modules/sistema/avisos/routes'
+require_relative '../modules/sistema/usuarios/routes' 
+require_relative '../modules/sistema/configuracion/routes'
+
 
 
 module CitasMedicas
@@ -16,6 +21,10 @@ module CitasMedicas
     register ClinicaDisponibilidadRoutes
     register ClinicaEspecialidadesRoutes
     register AgendaCitasRoutes
+    register AgendaBloqueosRoutes
+    register SistemaAvisosRoutes 
+    register SistemaUsuariosRoutes 
+    register SistemaConfiguracionRoutes
 
     get '/' do
       if autenticado?
@@ -26,3 +35,6 @@ module CitasMedicas
     end
   end
 end
+
+
+
