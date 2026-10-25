@@ -9,29 +9,38 @@
   </a>
 </div>
 
-<div class="filters glass" style="flex-wrap: wrap;">
-  <form method="get" action="/agenda" id="formFiltros" style="display: flex; gap: 1rem; width: 100%; align-items: flex-end; flex-wrap: wrap;">
+
+
+
+
+
+<!-- Cambiamos filters glass por toolbar -->
+<div class="toolbar">
+  <form method="get" action="/agenda" id="formFiltros" class="toolbar-form">
     <input type="hidden" name="status" value="<%= @status_actual %>">
     
-    <div class="field" style="margin: 0; flex: 1; min-width: 150px;">
-      <label style="font-size: 0.75rem; margin-bottom: 0.25rem; display: block;">Fecha</label>
-      <input class="input" type="date" name="fecha" value="<%= @fecha_actual %>" onchange="this.form.submit()">
+    <div class="field">
+      <!-- El CSS oculta este label visualmente, pero los lectores de pantalla lo leen -->
+      <label for="fecha">Fecha</label>
+      <input id="fecha" class="input" type="date" name="fecha" value="<%= @fecha_actual %>" onchange="this.form.submit()">
     </div>
 
-    <div class="field" style="margin: 0; flex: 1; min-width: 200px;">
-      <label style="font-size: 0.75rem; margin-bottom: 0.25rem; display: block;">Paciente</label>
-      <select class="vanilla-select" name="paciente_id" onchange="this.form.submit()">
-        <option value="">Todos los pacientes</option>
+    <div class="field">
+      <label for="paciente">Paciente</label>
+      <!-- El CSS oculta este select nativo para que no parpadee -->
+      <select id="paciente" class="vanilla-select" name="paciente_id" onchange="this.form.submit()">
+        <option value="">Paciente (Todos)</option>
         <% @pacientes_filtro.each do |p| %>
           <option value="<%= p.id %>" <%= @paciente_actual.to_s == p.id.to_s ? 'selected' : '' %>><%= p.nombre_completo %></option>
         <% end %>
       </select>
     </div>
 
-    <div class="field" style="margin: 0; flex: 1; min-width: 200px;">
-      <label style="font-size: 0.75rem; margin-bottom: 0.25rem; display: block;">Médico</label>
-      <select class="vanilla-select" name="medico_id" onchange="this.form.submit()">
-        <option value="">Todos los médicos</option>
+    <div class="field">
+      <label for="medico">Médico</label>
+      <!-- El CSS oculta este select nativo para que no parpadee -->
+      <select id="medico" class="vanilla-select" name="medico_id" onchange="this.form.submit()">
+        <option value="">Médico (Todos)</option>
         <% @medicos_filtro.each do |m| %>
           <option value="<%= m.id %>" <%= @medico_actual.to_s == m.id.to_s ? 'selected' : '' %>><%= m.nombre_completo %></option>
         <% end %>
@@ -39,6 +48,10 @@
     </div>
   </form>
 </div>
+
+
+
+
 
 <div class="panel glass">
   <div class="panel-head">

@@ -27,8 +27,10 @@ class VanillaSelect {
 
         this.control = document.createElement('div');
         this.control.className = 'vs-control';
+        
+        // CAMBIO 1: Estructura más limpia. El span principal maneja el texto y la clase de placeholder.
         this.control.innerHTML = `
-            <span class="vs-value"><span class="vs-placeholder">Seleccionar...</span></span>
+            <span class="vs-value vs-placeholder"></span>
             <span class="vs-arrow">▼</span>
         `;
         this.wrapper.appendChild(this.control);
@@ -54,17 +56,27 @@ class VanillaSelect {
 
     populateOptions() {
         const originalOptions = this.select.querySelectorAll('option');
+        const valueSpan = this.control.querySelector('.vs-value');
+
+        // CAMBIO 2: Leer el texto de la primera opción (si su valor es vacío) para usarlo como placeholder.
+        if (originalOptions.length > 0 && originalOptions[0].value === "") {
+            valueSpan.textContent = originalOptions[0].textContent;
+        }
+
         originalOptions.forEach(opt => {
             const li = document.createElement('li');
             li.className = 'vs-option';
             li.dataset.value = opt.value;
             li.textContent = opt.textContent;
             
+            // Si una opción viene seleccionada por defecto y NO está vacía
             if (opt.selected && opt.value !== "") {
                 li.classList.add('is-selected');
-                const valueSpan = this.control.querySelector('.vs-value');
                 valueSpan.textContent = opt.textContent;
-                valueSpan.classList.remove('vs-placeholder');
+                valueSpan.classList.remove('vs-placeholder'); // Quitar gris
+            } else if (opt.selected && opt.value === "") {
+                // Si la opción seleccionada por defecto es la vacía, se marca visualmente
+                li.classList.add('is-selected');
             }
             
             this.optionsList.appendChild(li);
@@ -143,7 +155,13 @@ class VanillaSelect {
         
         const valueSpan = this.control.querySelector('.vs-value');
         valueSpan.textContent = li.textContent;
-        valueSpan.classList.remove('vs-placeholder');
+
+        // CAMBIO 3: Si el valor es vacío (ej. "Todos"), vuelve a ponerse gris. Si no, se quita el gris.
+        if (li.dataset.value === "") {
+            valueSpan.classList.add('vs-placeholder');
+        } else {
+            valueSpan.classList.remove('vs-placeholder');
+        }
 
         this.select.value = li.dataset.value;
         this.select.dispatchEvent(new Event('change', { bubbles: true }));
@@ -152,13 +170,11 @@ class VanillaSelect {
 }
 
 // ==========================================================================
-// 👇 AQUÍ ESTÁ LA MAGIA PARA QUE FUNCIONE CON HTMX
+// 👇 MAGIA PARA HTMX
 // ==========================================================================
 
-// Función reutilizable para inicializar los selects
 function initVanillaSelects() {
     document.querySelectorAll('select.vanilla-select').forEach(select => {
-        // Evitamos inicializar dos veces el mismo select (seguridad)
         if (!select.dataset.vanillaInit) {
             select.dataset.vanillaInit = 'true';
             new VanillaSelect(select);
@@ -166,8 +182,6 @@ function initVanillaSelects() {
     });
 }
 
-// 1. Inicializar al cargar la página normalmente
 document.addEventListener('DOMContentLoaded', initVanillaSelects);
 
-// 2. Inicializar cuando HTMX reemplaza contenido en el DOM
 document.body.addEventListener('htmx:afterSwap', initVanillaSelects);

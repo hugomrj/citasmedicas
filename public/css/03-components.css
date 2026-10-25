@@ -175,67 +175,132 @@
 
 
 
-.filters {
-  display: flex;
-  align-items: stretch; /* <--- CAMBIAR 'center' POR 'stretch' */
-  gap: 0.75rem; /* 12px */
-  padding: 0.875rem 1rem; /* 14px 16px */
-  border-radius: 0.875rem; /* 14px */
-  margin-bottom: 1.125rem; /* 18px */
-  flex-wrap: wrap;
+
+/* ═══ TOOLBAR (Barra de herramientas sobre la tabla) ═══ */
+.toolbar {
+  width: 100%;
+  margin-bottom: 1.125rem; /* 18px de separación con la tabla */
   position: relative;
-  z-index: 1;
+}
+
+/* El formulario es el que hace la magia de poner todo en fila */
+.toolbar-form {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  align-items: center; 
+  flex-wrap: wrap;
+}
+
+/* Los campos dentro de la toolbar se reparten el espacio */
+.toolbar .field {
+  flex: 1;
+  min-width: 200px; 
+  margin: 0; 
+}
+
+/* Ocultamos los labels de forma agresiva (!important) para ganarle a la regla global .field label */
+.toolbar .field label {
+  display: none !important; 
+}
+
+/* Ocultamos el select nativo desde CSS para evitar el pestañeo inicial */
+.toolbar select.vanilla-select {
+  display: none;
+}
+
+/* Ajuste para que el input date ocupe todo el ancho de su caja */
+.toolbar .input {
+  width: 100%;
+  color: var(--text);
 }
 
 
 
 
+
+
+
+
+/* ═══ TOOLBAR BÚSQUEDA ═══ */
+.toolbar {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  align-items: center;
+  flex-wrap: nowrap; /* <--- Mantiene el botón al lado del buscador */
+  margin-bottom: 1.125rem;
+  position: relative;
+}
+
+/* El buscador */
 .f-search {
   display: flex;
   align-items: center;
-  gap: 0.5625rem; /* 9px */
-  padding: 0.6875rem 0.875rem; 
-  border-radius: 0.625rem; /* 10px */
-  flex: 1;
-  min-width: 12.5rem; /* 200px */
+  gap: 0.5625rem;
+  height: 42px;
+  padding: 0 13px;
+  border-radius: 0.6875rem;
+  flex: 1; /* Esto empuja el botón a la derecha automáticamente */
+  min-width: 0; 
   background: var(--field);
   border: 1px solid var(--brd-2);
   transition: 0.2s;
 }
-  
-  .f-search:focus-within {
-    border-color: var(--acc);
-    box-shadow: 0 0 0 3px var(--ring);
+
+.f-search:focus-within {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.f-search svg {
+  width: 0.9375rem;
+  height: 0.9375rem;
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+.f-search input {
+  border: none;
+  background: none;
+  outline: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.84375rem;
+  width: 100%;
+  min-width: 0; /* Arregla el problema de la "J" */
+  padding-left: 4px; /* Separa el texto de la lupa */
+}
+
+.f-search kbd {
+  font-size: 0.65625rem;
+  color: var(--text-2);
+  border: 1px solid var(--brd-2);
+  border-radius: 0.3125rem;
+  padding: 0.125rem 0.4375rem;
+}
+
+/* El botón de Limpiar */
+.toolbar .btn {
+  height: 42px; /* Igual altura que el buscador */
+  box-sizing: border-box;
+  flex-shrink: 0; /* Evita que el botón se deforme */
+  white-space: nowrap; /* Evita que el texto se rompa en dos líneas */
+}
+
+/* Responsive para celulares (si la pantalla es muy chica, que baje el botón) */
+@media (max-width: 600px) {
+  .toolbar {
+    flex-wrap: wrap;
   }
-  
-  .f-search svg {
-    width: 0.9375rem; /* 15px */
-    height: 0.9375rem;
-    color: var(--text-2);
-    flex-shrink: 0;
-  }
-  
-  .f-search input {
-    border: none;
-    background: none;
-    outline: none;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 0.8125rem; /* 13px */
-    width: 100%;
-  }
-  
-  .f-search kbd {
-    font-size: 0.65625rem; /* 10.5px */
-    color: var(--text-2);
-    border: 1px solid var(--brd-2);
-    border-radius: 0.3125rem; /* 5px */
-    padding: 0.125rem 0.4375rem; /* 2px 7px */
-  }
-  
-  .f-clear {
-    margin-left: auto;
-  }
+}
+
+
+
+
+
+
+
   
   /* ═══ SELECT CUSTOM ═══ */
   .fsel {
@@ -424,6 +489,8 @@
     justify-content: space-between;
     gap: 0.75rem; /* 12px */
     padding: 0.875rem 1.375rem; /* 14px 22px */
+    padding: 0.5rem 1.375rem 0.875rem 1.375rem; 
+
     border-bottom: 1px solid var(--brd);
     flex-wrap: wrap;
     position: relative;
@@ -435,10 +502,13 @@
     font-weight: 700;
   }
   
-  .table-wrap {
-    position: relative;    
-    z-index: 10;
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84375rem;
+    table-layout: fixed; /* <--- CAMBIA 'auto' POR 'fixed' */
   }
+
   
   table {
     width: 100%;
@@ -921,52 +991,106 @@
     color: var(--text-2);
   }
   
-  .input, .textarea {
-    width: 100%;
-    padding: 0.75rem 0.875rem; /* 12px 14px */
-    border-radius: 0.6875rem; /* 11px */
-    border: 1px solid var(--brd-2);
-    background: var(--field);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 0.84375rem; /* 13.5px */
-    outline: none;
-    transition: 0.15s;
-  }
+
+
+
+
+    /* 1. Estilos base SOLO para Inputs de una línea */
+    .input {
+      width: 100%;
+      height: 42px;
+      padding: 0 13px;
+      border-radius: 0.6875rem;
+      border: 1px solid var(--brd-2);
+      background: var(--field);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.84375rem;
+      outline: none;
+      transition: 0.15s;
+      box-sizing: border-box;
+    }
   
-  .input:focus, .textarea:focus {
-    border-color: var(--acc);
-    box-shadow: 0 0 0 3px var(--ring);
-  }
+    /* 2. Estilos base para el Textarea */
+    .textarea {
+      width: 100%;
+      padding: 0.75rem 0.875rem;
+      border-radius: 0.6875rem;
+      border: 1px solid var(--brd-2);
+      background: var(--field);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.84375rem;
+      outline: none;
+      transition: 0.15s;
+      resize: vertical;
+      min-height: 6rem;
+      box-sizing: border-box;
+    }
+    
+    /* 3. Estados Focus */
+    .input:focus, .textarea:focus {
+      border-color: var(--acc);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+    
+    /* 4. Estado de Error */
+    .input.error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px var(--danger-bg);
+    }
+    
+    /* 5. Placeholders */
+    .input::placeholder, .textarea::placeholder {
+      color: var(--text-2);
+    }
+    
+    /* 6. Campos en modo solo lectura */
+    .input.readonly, .textarea.readonly {
+      border-color: transparent;
+      background: var(--hover);
+      color: var(--text);
+      cursor: text;
+      pointer-events: none;
+    }
+    
+    .input.readonly:focus, .textarea.readonly:focus {
+      border-color: transparent;
+      box-shadow: none;
+    }
   
-  .input.error {
-    border-color: var(--danger);
-    box-shadow: 0 0 0 3px var(--danger-bg);
-  }
+    /* 7. Input Date: Adaptación automática al Tema (Claro/Oscuro) */
+    
+    /* Modo Oscuro: Calendario oscuro e icono blanco */
+    html[data-theme="dark"] input[type="date"].input {
+      color-scheme: dark; 
+    }
+    html[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1); 
+      opacity: 0.6;
+    }
   
-  .input::placeholder, .textarea::placeholder {
-    color: var(--text-2);
-  }
+    /* Modo Claro: Calendario claro e icono oscuro (nativo) */
+    html[data-theme="light"] input[type="date"].input {
+      color-scheme: light; 
+    }
+    html[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: none; 
+      opacity: 0.5;
+    }
   
-  .textarea {
-    resize: vertical;
-    min-height: 6rem; /* 96px */
-  }
-  
-  /* Campos en modo solo lectura (Detalles) */
-  .input.readonly, .textarea.readonly {
-    border-color: transparent;
-    background: var(--hover);
-    color: var(--text);
-    cursor: text;
-    pointer-events: none;
-  }
-  
-  .input.readonly:focus, .textarea.readonly:focus {
-    border-color: transparent;
-    box-shadow: none;
-  }
-  
+    /* Hover del icono del calendario (aplica a ambos) */
+    input[type="date"]::-webkit-calendar-picker-indicator:hover {
+      opacity: 1;
+      cursor: pointer;
+    }
+
+
+
+
+
+
+
   .err-msg {
     display: none;
     font-size: 0.75rem; /* 12px */

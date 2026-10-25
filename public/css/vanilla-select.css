@@ -3,7 +3,7 @@
    ============================================================ */
 
 .vanilla-select-wrapper {
-  --vs-bg:              var(--panel-2, #1e293b); /* Usamos el gris sólido del template */
+  --vs-bg:              var(--field); 
   --vs-text:            var(--text, #f8fafc);
   --vs-placeholder:     var(--text-2, #94a3b8);
   --vs-border:          var(--brd-2, #334155);
@@ -55,7 +55,8 @@
   display: none;
   position: absolute; top: calc(100% + 4px); left: 0; right: 0;
   z-index: 9999 !important;
-  background-color: var(--vs-bg) !important; /* Forzamos el fondo sólido */
+  /* CAMBIA ESTO: Usa panel-2 en lugar de vs-bg */
+  background-color: var(--panel-2, #1e293b) !important; 
   border: 1px solid var(--vs-border); border-radius: var(--vs-border-radius);
   box-shadow: var(--vs-dropdown-shadow);
   max-height: var(--vs-max-height); overflow-y: auto;
@@ -76,7 +77,8 @@
   padding: 6px 8px;
   border-bottom: 1px solid var(--vs-border);
   position: sticky; top: 0;
-  background-color: var(--vs-bg) !important;
+  /* CAMBIA ESTO también: */
+  background-color: var(--panel-2, #1e293b) !important;
   z-index: 1;
 }
 
