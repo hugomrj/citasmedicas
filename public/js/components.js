@@ -1,36 +1,3 @@
-/* ═══ SELECT CUSTOM ═══ */
-function initFsel(id,onChange){
-  const fsel=document.getElementById(id);
-  if(!fsel) return;
-  const btn=fsel.querySelector('.fsel-btn');
-  const lbl=btn.querySelector('.fsel-lbl');
-  
-  btn.addEventListener('click',e=>{
-    e.stopPropagation();
-    document.querySelectorAll('.fsel.open').forEach(x=>{if(x!==fsel)x.classList.remove('open')});
-    fsel.classList.toggle('open');
-  });
-  
-  fsel.querySelectorAll('.fsel-opt').forEach(opt=>opt.addEventListener('click',e=>{
-    e.stopPropagation();
-    fsel.querySelectorAll('.fsel-opt').forEach(o=>o.classList.remove('sel'));
-    opt.classList.add('sel');
-    lbl.textContent=opt.textContent;
-    fsel.classList.remove('open');
-    onChange(opt.dataset.val);
-  }));
-  
-  return {
-    set(val){
-      const opt=fsel.querySelector(`.fsel-opt[data-val="${val}"]`);
-      if(!opt)return;
-      fsel.querySelectorAll('.fsel-opt').forEach(o=>o.classList.remove('sel'));
-      opt.classList.add('sel');
-      lbl.textContent=opt.textContent;
-    }
-  };
-}
-
 /* ═══ TOOLTIP GLOBAL ═══ */
 const tipEl=document.getElementById('tooltip');
 let tipTimer=null,tipCur=null;
@@ -142,8 +109,5 @@ document.addEventListener('click',e=>{
   if(notifMenu && btnNotif && !e.target.closest('.notif-wrap')){
     notifMenu.classList.remove('open');
     btnNotif.classList.remove('active')
-  }
-  if(!e.target.closest('.fsel')){
-    document.querySelectorAll('.fsel.open').forEach(x=>x.classList.remove('open'))
   }
 });

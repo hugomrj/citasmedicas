@@ -4,7 +4,6 @@
    - Sidebar móvil / collapsible
    - Kebab menu en filas de tabla
    - Modal de eliminación genérico
-   - Inicialización de fsel (usa initFsel de components.js si existe)
 */
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -111,16 +110,5 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 
-  /* ═══ Filtros custom (initFsel de components.js) ═══ */
-  if (typeof initFsel === 'function') {
-    document.querySelectorAll('.fsel').forEach(f => {
-      if (f.id && !f._initialized) {
-        try {
-          initFsel(f.id, () => { /* no-op por defecto; las páginas pueden override */ });
-          f._initialized = true;
-        } catch(err) { /* noop */ }
-      }
-    });
-  }
 
 });

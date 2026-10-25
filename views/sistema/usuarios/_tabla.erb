@@ -19,25 +19,18 @@
       <% else %>
         <% @usuarios.each do |u| %>
           <tr>
-
-
-
             <td class="cell-name">
               <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                <b><%= pac.nombre_completo %></b>
-                <!-- ETIQUETA DE CANAL -->
-                <% if pac.canal_registro == 'chatbot' || pac.canal_registro == 'telegram' %>
-                  <span class="status" style="font-size: 0.65rem; padding: 0.1rem 0.4rem; color: var(--info); background: var(--info-bg); border-color: var(--info); text-transform: capitalize;">
-                    <%= pac.canal_registro %>
-                  </span>
-                <% end %>
+                <!-- Corregido: usamos u.nombre y u.apellido -->
+                <b><%= "#{u.nombre} #{u.apellido}" %></b>
               </div>
-              <span><%= pac.email || 'Sin correo' %></span>
+              <!-- Corregido: usamos u.username en lugar de pac.email -->
+              <span>@<%= u.username %></span>
             </td>
 
-
-
+            <!-- Corregido: este td es para el email -->
             <td><%= u.email || '-' %></td>
+
             <td>
               <!-- Le sacamos la clase status para que no sea una píldora -->
               <% if u.rol == 'admin' %>
@@ -67,7 +60,8 @@
                   
                   <% if u.activo && u.id != usuario_actual.id %>
                     <form method="post" action="/usuarios/<%= u.id %>/desactivar" style="margin: 0; padding: 0;">
-                      <button type="submit" class="danger" style="width: 100%;" onclick="return confirm('¿Desactivar a <%= u.nombre_completo %>? No podrá ingresar al sistema.')">
+                      <!-- Corregido: u.nombre en lugar de u.nombre_completo -->
+                      <button type="submit" class="danger" style="width: 100%;" onclick="return confirm('¿Desactivar a <%= u.nombre %>? No podrá ingresar al sistema.')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
                         Desactivar
                       </button>
